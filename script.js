@@ -2,18 +2,20 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
-    // Ensure movies and themes data are available from data/movies.js
+    // IMPORTANT: Ensure movies.js is loaded BEFORE script.js in your HTML.
+    // Example: <script src="data/movies.js"></script> <script src="script.js"></script>
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
-        console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is before script.js');
+        console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
         // Prevent further execution if critical data is missing
         return;
     }
 
     // Select core DOM elements
     const body = document.body; // Reference to the body for overflow control
-    const mainContent = document.querySelector('main'); // Main content area
+    // mainContent is not directly used for modal visibility, but kept for context.
+    // const mainContent = document.querySelector('main');
 
-    // Home page specific elements
+    // Home page specific elements (check if they exist before using them)
     const themeButtonsContainer = document.getElementById('theme-buttons-container');
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
     const searchInput = document.getElementById('search-input');
@@ -25,18 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const movieRequestTextarea = document.getElementById('movie-request-text');
     const featuredSectionTitle = document.querySelector('.featured-movies h2'); // Added for dynamic title
 
-    // Theme page specific elements
+    // Theme page specific elements (check if they exist before using them)
     const themePageTitle = document.getElementById('theme-page-title');
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
 
-    // Video Modal Elements
+    // Video Modal Elements (check if they exist on the page)
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
     const moviePlayer = document.getElementById('movie-player');
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
 
-    // --- 2. Helper Functions for Dynamic Content ---
+    // --- 2. Helper Functions for Dynamic Content & Modal Control ---
 
     /**
      * Creates a single movie card HTML element.
@@ -67,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {HTMLElement} containerElement - The DOM element to render movies into.
      */
     function renderMovies(moviesToRender, containerElement) {
-        if (!containerElement) return; // Exit if container doesn't exist on this page
+        if (!containerElement) return; // Exit if the container element doesn't exist on the current page
 
         containerElement.innerHTML = ''; // Clear existing content
         if (moviesToRender.length === 0) {
@@ -92,14 +94,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Iterate over them and attach the click handler
         watchNowButtons.forEach(button => {
-            // Remove existing listener first to prevent duplicates (important for dynamic content)
+            // Remove existing listener first to prevent duplicates if renderMovies is called multiple times
             button.removeEventListener('click', handleWatchNowClick);
+            // Add the new listener
             button.addEventListener('click', handleWatchNowClick);
         });
     }
-
-
-    // --- 3. Video Modal Logic ---
 
     /**
      * Handles the click event for "Watch Now" buttons.
@@ -107,14 +107,20 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {Event} event - The click event object.
      */
     function handleWatchNowClick(event) {
+        // Ensure modal elements exist before trying to use them
+        if (!videoModal || !moviePlayer || !modalMovieTitle) {
+            console.error('Video modal elements are missing from the DOM.');
+            return;
+        }
+
         const movieId = event.target.dataset.movieId; // Get the movie ID from the button's data attribute
         const movie = movies.find(m => m.id === movieId); // Find the movie object in our data
 
         if (movie) {
             modalMovieTitle.textContent = movie.name; // Set the title in the modal
             moviePlayer.src = movie.video; // Set the video source
-            videoModal.style.display = 'flex'; // Make the modal visible
-            body.style.overflow = 'hidden'; // Prevent scrolling the background content
+            videoModal.style.display = 'flex'; // <<--- THIS IS THE ONLY LINE THAT SHOULD MAKE THE MODAL VISIBLE
+            body.style.overflow = 'hidden'; // Prevent background scrolling when modal is open
             moviePlayer.load(); // Load the video (prepares it for playback)
             moviePlayer.play(); // Start playing the video automatically
         } else {
@@ -129,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeVideoModal() {
         if (videoModal && moviePlayer) {
             videoModal.style.display = 'none'; // Hide the modal
-            body.style.overflow = ''; // Restore scrolling on the background
+            body.style.overflow = ''; // Restore background scrolling
             moviePlayer.pause(); // Pause the video
             moviePlayer.currentTime = 0; // Reset video playback to the beginning
             moviePlayer.src = ''; // Clear the video source (good for memory/performance)
@@ -137,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Attach listeners for closing the modal
+    // Attach listeners for closing the modal (these should always be active if modal exists)
     if (closeVideoModalBtn) {
         closeVideoModalBtn.addEventListener('click', closeVideoModal);
     }
@@ -157,10 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 4. Home Page Specific Logic (index.html) ---
+    // --- 3. Page Initialization Logic ---
 
-    // Check if we are on the index.html page by looking for specific elements
-    if (themeButtonsContainer && featuredMoviesGrid) {
+    // Initialize Home Page (index.html) specific elements and logic
+    // We check for elements unique to index.html to know we are on that page
+    if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
         // Generate Theme Buttons
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
@@ -171,35 +178,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Populate Featured Movies (initially, show first 6 movies as featured)
+        // Adjust slice(0, 6) to show more or less featured movies as desired.
         const initialFeaturedMovies = movies.slice(0, 6);
         renderMovies(initialFeaturedMovies, featuredMoviesGrid);
 
 
         // Search Functionality for Home Page
-        if (searchButton && searchInput) {
-            const applySearchFilter = (searchTerm) => {
-                const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
-                let filteredMovies;
+        const applySearchFilter = (searchTerm) => {
+            const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+            let filteredMovies;
 
-                if (lowerCaseSearchTerm) {
-                    filteredMovies = movies.filter(movie =>
-                        movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-                        movie.theme.toLowerCase().includes(lowerCaseSearchTerm) ||
-                        String(movie.year).includes(lowerCaseSearchTerm)
-                    );
-                    if (featuredSectionTitle) {
-                        featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
-                    }
-                } else {
-                    // If search term is empty, revert to initial featured movies
-                    filteredMovies = movies.slice(0, 6);
-                    if (featuredSectionTitle) {
-                        featuredSectionTitle.textContent = 'Featured Movies';
-                    }
+            if (lowerCaseSearchTerm) {
+                filteredMovies = movies.filter(movie =>
+                    movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    movie.theme.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    String(movie.year).includes(lowerCaseSearchTerm)
+                );
+                if (featuredSectionTitle) {
+                    featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
                 }
-                renderMovies(filteredMovies, featuredMoviesGrid);
-            };
+            } else {
+                // If search term is empty, revert to initial featured movies
+                filteredMovies = movies.slice(0, 6);
+                if (featuredSectionTitle) {
+                    featuredSectionTitle.textContent = 'Featured Movies';
+                }
+            }
+            renderMovies(filteredMovies, featuredMoviesGrid);
+        };
 
+        if (searchButton && searchInput) {
             searchButton.addEventListener('click', () => {
                 applySearchFilter(searchInput.value);
             });
@@ -217,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (initialSearchQuery) {
                 searchInput.value = initialSearchQuery; // Pre-fill search input
                 applySearchFilter(initialSearchQuery); // Apply the filter
-                // Optionally scroll to the search results
+                // Scroll to the search results section for better UX
                 if (featuredMoviesGrid) {
                     featuredMoviesGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
@@ -260,9 +268,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 5. Theme Page Specific Logic (theme_page.html) ---
-
-    // Check if we are on the theme_page.html by looking for specific elements
+    // Initialize Theme Page (theme_page.html) specific elements and logic
+    // We check for elements unique to theme_page.html to know we are on that page
     if (themePageTitle && themeMoviesGrid) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTheme = urlParams.get('theme');
@@ -275,19 +282,18 @@ document.addEventListener('DOMContentLoaded', () => {
             themePageTitle.textContent = `${selectedTheme} Movies`;
             moviesToDisplay = movies.filter(movie => movie.theme === selectedTheme);
         } else if (searchTermFromHome) {
-            // If redirected here with a search term, display search results
+            // If redirected here with a search term, display search results on this page.
+            // Note: For a primary search, redirecting to index.html is often better
+            // as it has the search bar. This handles showing results if theme_page is
+            // accessed with a search parameter directly.
             themePageTitle.textContent = `Search Results for "${searchTermFromHome}"`;
             moviesToDisplay = movies.filter(movie =>
                 movie.name.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
                 movie.theme.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
                 String(movie.year).includes(searchTermFromHome)
             );
-            // Optionally, you might want to redirect back to index.html for search results
-            // as the search bar is primarily on the home page.
-            // window.location.href = `index.html?search=${encodeURIComponent(searchTermFromHome)}`;
-            // return; // Stop executing this script on theme_page if redirecting
         } else {
-            // Default: show all movies if no theme or search term
+            // Default: show all movies if no theme or search term specified in URL
             themePageTitle.textContent = 'All Movies';
             moviesToDisplay = movies;
         }
@@ -296,4 +302,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // End of DOMContentLoaded
-                                                   
+                

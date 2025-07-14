@@ -1,22 +1,33 @@
 // script.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if movies and themes are loaded from data/movies.js
+    // --- 1. Basic Setup & Element Selection ---
+    // Ensure movies and themes data are available from data/movies.js
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
-        console.error('Error: movies.js not loaded or data is missing.');
+        console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is before script.js');
+        // Prevent further execution if critical data is missing
         return;
     }
 
-    const mainContent = document.querySelector('main');
+    // Select core DOM elements
+    const body = document.body; // Reference to the body for overflow control
+    const mainContent = document.querySelector('main'); // Main content area
+
+    // Home page specific elements
     const themeButtonsContainer = document.getElementById('theme-buttons-container');
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
-    const movieRequestSection = document.getElementById('movie-request-section');
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
     const requestMovieBtn = document.getElementById('request-movie-btn');
+    const movieRequestSection = document.getElementById('movie-request-section');
     const closeRequestFormBtn = document.getElementById('close-request-form');
     const movieRequestForm = document.getElementById('movie-request-form');
     const movieRequestTextarea = document.getElementById('movie-request-text');
-    const searchInput = document.getElementById('search-input');
-    const searchButton = document.getElementById('search-button');
+    const featuredSectionTitle = document.querySelector('.featured-movies h2'); // Added for dynamic title
+
+    // Theme page specific elements
+    const themePageTitle = document.getElementById('theme-page-title');
+    const themeMoviesGrid = document.getElementById('theme-movies-grid');
 
     // Video Modal Elements
     const videoModal = document.getElementById('video-modal');
@@ -24,10 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const moviePlayer = document.getElementById('movie-player');
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
-    // --- Helper Functions ---
+
+    // --- 2. Helper Functions for Dynamic Content ---
 
     /**
-     * Creates a movie card HTML element.
+     * Creates a single movie card HTML element.
      * @param {Object} movie - The movie object from the 'movies' array.
      * @returns {HTMLElement} The created movie card div.
      */
@@ -50,10 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Renders a list of movies into a specified grid container.
+     * Attaches "Watch Now" listeners to newly created buttons.
      * @param {Array<Object>} moviesToRender - Array of movie objects.
      * @param {HTMLElement} containerElement - The DOM element to render movies into.
      */
     function renderMovies(moviesToRender, containerElement) {
+        if (!containerElement) return; // Exit if container doesn't exist on this page
+
         containerElement.innerHTML = ''; // Clear existing content
         if (moviesToRender.length === 0) {
             containerElement.innerHTML = '<p class="no-results-message">No movies found matching your criteria.</p>';
@@ -63,43 +78,90 @@ document.addEventListener('DOMContentLoaded', () => {
             const movieCard = createMovieCard(movie);
             containerElement.appendChild(movieCard);
         });
-        attachWatchNowListeners(); // Attach listeners after rendering
+        // Important: Attach listeners *after* elements are added to the DOM
+        attachWatchNowListeners();
     }
 
     /**
      * Attaches click listeners to all "Watch Now" buttons.
+     * This function should be called every time new movie cards are rendered.
      */
     function attachWatchNowListeners() {
+        // Select all current 'Watch Now' buttons on the page
         const watchNowButtons = document.querySelectorAll('.watch-now-button');
+
+        // Iterate over them and attach the click handler
         watchNowButtons.forEach(button => {
-            button.removeEventListener('click', handleWatchNowClick); // Prevent duplicate listeners
+            // Remove existing listener first to prevent duplicates (important for dynamic content)
+            button.removeEventListener('click', handleWatchNowClick);
             button.addEventListener('click', handleWatchNowClick);
         });
     }
 
+
+    // --- 3. Video Modal Logic ---
+
     /**
      * Handles the click event for "Watch Now" buttons.
-     * @param {Event} event
+     * Displays the video modal and plays the selected movie.
+     * @param {Event} event - The click event object.
      */
     function handleWatchNowClick(event) {
-        const movieId = event.target.dataset.movieId;
-        const movie = movies.find(m => m.id === movieId);
+        const movieId = event.target.dataset.movieId; // Get the movie ID from the button's data attribute
+        const movie = movies.find(m => m.id === movieId); // Find the movie object in our data
 
         if (movie) {
-            modalMovieTitle.textContent = movie.name;
-            moviePlayer.src = movie.video;
-            videoModal.style.display = 'flex'; // Show the modal
-            moviePlayer.load(); // Load the video
-            moviePlayer.play(); // Autoplay the video
+            modalMovieTitle.textContent = movie.name; // Set the title in the modal
+            moviePlayer.src = movie.video; // Set the video source
+            videoModal.style.display = 'flex'; // Make the modal visible
+            body.style.overflow = 'hidden'; // Prevent scrolling the background content
+            moviePlayer.load(); // Load the video (prepares it for playback)
+            moviePlayer.play(); // Start playing the video automatically
         } else {
-            alert('Movie not found!');
+            console.error(`Movie with ID ${movieId} not found.`);
+            alert('Sorry, the selected movie could not be found.');
         }
     }
 
-    // --- Event Listeners and Initial Load ---
+    /**
+     * Closes the video modal and pauses/resets the video player.
+     */
+    function closeVideoModal() {
+        if (videoModal && moviePlayer) {
+            videoModal.style.display = 'none'; // Hide the modal
+            body.style.overflow = ''; // Restore scrolling on the background
+            moviePlayer.pause(); // Pause the video
+            moviePlayer.currentTime = 0; // Reset video playback to the beginning
+            moviePlayer.src = ''; // Clear the video source (good for memory/performance)
+            modalMovieTitle.textContent = ''; // Clear modal title
+        }
+    }
 
-    // Generate Theme Buttons for the Home Page
-    if (themeButtonsContainer) {
+    // Attach listeners for closing the modal
+    if (closeVideoModalBtn) {
+        closeVideoModalBtn.addEventListener('click', closeVideoModal);
+    }
+    // Close modal when clicking outside the content area
+    if (videoModal) {
+        videoModal.addEventListener('click', (event) => {
+            if (event.target === videoModal) { // Ensure click was directly on the overlay, not content inside
+                closeVideoModal();
+            }
+        });
+    }
+    // Close modal on Escape key press
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && videoModal && videoModal.style.display === 'flex') {
+            closeVideoModal();
+        }
+    });
+
+
+    // --- 4. Home Page Specific Logic (index.html) ---
+
+    // Check if we are on the index.html page by looking for specific elements
+    if (themeButtonsContainer && featuredMoviesGrid) {
+        // Generate Theme Buttons
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
             themeButton.href = `theme_page.html?theme=${encodeURIComponent(theme)}`; // Pass theme as URL parameter
@@ -107,138 +169,131 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButton.textContent = theme;
             themeButtonsContainer.appendChild(themeButton);
         });
+
+        // Populate Featured Movies (initially, show first 6 movies as featured)
+        const initialFeaturedMovies = movies.slice(0, 6);
+        renderMovies(initialFeaturedMovies, featuredMoviesGrid);
+
+
+        // Search Functionality for Home Page
+        if (searchButton && searchInput) {
+            const applySearchFilter = (searchTerm) => {
+                const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+                let filteredMovies;
+
+                if (lowerCaseSearchTerm) {
+                    filteredMovies = movies.filter(movie =>
+                        movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+                        movie.theme.toLowerCase().includes(lowerCaseSearchTerm) ||
+                        String(movie.year).includes(lowerCaseSearchTerm)
+                    );
+                    if (featuredSectionTitle) {
+                        featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
+                    }
+                } else {
+                    // If search term is empty, revert to initial featured movies
+                    filteredMovies = movies.slice(0, 6);
+                    if (featuredSectionTitle) {
+                        featuredSectionTitle.textContent = 'Featured Movies';
+                    }
+                }
+                renderMovies(filteredMovies, featuredMoviesGrid);
+            };
+
+            searchButton.addEventListener('click', () => {
+                applySearchFilter(searchInput.value);
+            });
+
+            // Allow search on Enter key press in the input field
+            searchInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    applySearchFilter(searchInput.value);
+                }
+            });
+
+            // Handle incoming search query from URL (e.g., if redirected from theme_page.html)
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialSearchQuery = urlParams.get('search');
+            if (initialSearchQuery) {
+                searchInput.value = initialSearchQuery; // Pre-fill search input
+                applySearchFilter(initialSearchQuery); // Apply the filter
+                // Optionally scroll to the search results
+                if (featuredMoviesGrid) {
+                    featuredMoviesGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        // Movie Request Form Toggle Logic
+        if (requestMovieBtn && movieRequestSection) {
+            requestMovieBtn.addEventListener('click', () => {
+                movieRequestSection.classList.toggle('hidden'); // Toggle visibility
+                if (!movieRequestSection.classList.contains('hidden')) {
+                    // Scroll into view only if it's now visible
+                    movieRequestSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    movieRequestTextarea.focus(); // Focus on the textarea for immediate input
+                }
+            });
+        }
+
+        if (closeRequestFormBtn && movieRequestSection) {
+            closeRequestFormBtn.addEventListener('click', () => {
+                movieRequestSection.classList.add('hidden'); // Hide it
+                movieRequestTextarea.value = ''; // Clear textarea on close
+            });
+        }
+
+        if (movieRequestForm) {
+            movieRequestForm.addEventListener('submit', (event) => {
+                event.preventDefault(); // Stop default form submission (prevents page reload)
+                const requestText = movieRequestTextarea.value.trim();
+                if (requestText) {
+                    // In a real application, you'd send this data to a server (e.g., via fetch API)
+                    alert(`Your request for "${requestText}" has been submitted. Thank you! (This is a demo message, no data is saved)`);
+                    movieRequestTextarea.value = ''; // Clear the input field
+                    movieRequestSection.classList.add('hidden'); // Hide the form
+                } else {
+                    alert('Please enter your movie request before submitting.');
+                }
+            });
+        }
     }
 
-    // Populate Featured Movies on Home Page
-    if (featuredMoviesGrid) {
-        // For featured, let's just pick the first few or a random selection
-        const featured = movies.slice(0, 6); // Display first 6 movies as featured
-        renderMovies(featured, featuredMoviesGrid);
-    }
 
-    // Handle Theme Page Loading
-    const themePageTitle = document.getElementById('theme-page-title');
-    const themeMoviesGrid = document.getElementById('theme-movies-grid');
+    // --- 5. Theme Page Specific Logic (theme_page.html) ---
+
+    // Check if we are on the theme_page.html by looking for specific elements
     if (themePageTitle && themeMoviesGrid) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTheme = urlParams.get('theme');
+        const searchTermFromHome = urlParams.get('search'); // Check if redirected from home search
+
+        let moviesToDisplay = [];
 
         if (selectedTheme) {
+            // Display movies for a specific theme
             themePageTitle.textContent = `${selectedTheme} Movies`;
-            const filteredMovies = movies.filter(movie => movie.theme === selectedTheme);
-            renderMovies(filteredMovies, themeMoviesGrid);
-        } else {
-            themePageTitle.textContent = 'All Movies';
-            renderMovies(movies, themeMoviesGrid); // Show all movies if no theme specified
-        }
-    }
-
-    // Search Functionality
-    if (searchButton && searchInput) {
-        searchButton.addEventListener('click', () => {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            if (window.location.pathname.includes('theme_page.html')) {
-                // If on a theme page, redirect to home with search term
-                window.location.href = `index.html?search=${encodeURIComponent(searchTerm)}`;
-            } else {
-                // If on home page, filter and render
-                filterAndRenderMovies(searchTerm);
-            }
-        });
-
-        // Allow search on Enter key press
-        searchInput.addEventListener('keypress', (event) => {
-            if (event.key === 'Enter') {
-                searchButton.click();
-            }
-        });
-
-        // Check for search query in URL on page load (e.g., from a theme page redirect)
-        const urlParams = new URLSearchParams(window.location.search);
-        const initialSearchTerm = urlParams.get('search');
-        if (initialSearchTerm && mainContent.id !== 'theme-page') { // Only apply on home page
-            searchInput.value = initialSearchTerm;
-            filterAndRenderMovies(initialSearchTerm);
-        }
-    }
-
-    function filterAndRenderMovies(searchTerm) {
-        const allMoviesContainer = featuredMoviesGrid; // Use featuredMoviesGrid for displaying search results on home
-        let filteredMovies;
-        if (searchTerm) {
-            filteredMovies = movies.filter(movie =>
-                movie.name.toLowerCase().includes(searchTerm) ||
-                movie.theme.toLowerCase().includes(searchTerm) ||
-                String(movie.year).includes(searchTerm)
+            moviesToDisplay = movies.filter(movie => movie.theme === selectedTheme);
+        } else if (searchTermFromHome) {
+            // If redirected here with a search term, display search results
+            themePageTitle.textContent = `Search Results for "${searchTermFromHome}"`;
+            moviesToDisplay = movies.filter(movie =>
+                movie.name.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
+                movie.theme.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
+                String(movie.year).includes(searchTermFromHome)
             );
+            // Optionally, you might want to redirect back to index.html for search results
+            // as the search bar is primarily on the home page.
+            // window.location.href = `index.html?search=${encodeURIComponent(searchTermFromHome)}`;
+            // return; // Stop executing this script on theme_page if redirecting
         } else {
-            // If search term is empty, show default featured movies or all movies
-            filteredMovies = movies.slice(0, 6); // Or just movies for all.
+            // Default: show all movies if no theme or search term
+            themePageTitle.textContent = 'All Movies';
+            moviesToDisplay = movies;
         }
-        renderMovies(filteredMovies, allMoviesContainer);
-        // Change section title for search results
-        const featuredSectionTitle = document.querySelector('.featured-movies h2');
-        if (featuredSectionTitle) {
-            featuredSectionTitle.textContent = searchTerm ? `Search Results for "${searchTerm}"` : 'Featured Movies';
-        }
+
+        renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 
-
-    // Movie Request Form Toggle
-    if (requestMovieBtn && movieRequestSection) {
-        requestMovieBtn.addEventListener('click', () => {
-            movieRequestSection.classList.remove('hidden');
-            mainContent.scrollIntoView({ behavior: 'smooth', block: 'end' }); // Scroll to the form
-        });
-    }
-
-    if (closeRequestFormBtn && movieRequestSection) {
-        closeRequestFormBtn.addEventListener('click', () => {
-            movieRequestSection.classList.add('hidden');
-        });
-    }
-
-    if (movieRequestForm) {
-        movieRequestForm.addEventListener('submit', (event) => {
-            event.preventDefault(); // Prevent default form submission
-            const requestText = movieRequestTextarea.value.trim();
-            if (requestText !== '') {
-                alert(`Your request for "${requestText}" has been submitted. Thank you! (In a real app, this would be saved to a database)`);
-                movieRequestTextarea.value = ''; // Clear the textarea
-                movieRequestSection.classList.add('hidden'); // Hide the form after submission
-            } else {
-                alert('Please enter your movie request.');
-            }
-        });
-    }
-
-    // --- Video Modal Logic ---
-    if (closeVideoModalBtn && videoModal && moviePlayer) {
-        closeVideoModalBtn.addEventListener('click', () => {
-            videoModal.style.display = 'none';
-            moviePlayer.pause(); // Pause video when closing modal
-            moviePlayer.currentTime = 0; // Reset video to start
-            moviePlayer.src = ''; // Clear video source
-        });
-
-        // Close modal when clicking outside the content area
-        window.addEventListener('click', (event) => {
-            if (event.target === videoModal) {
-                videoModal.style.display = 'none';
-                moviePlayer.pause();
-                moviePlayer.currentTime = 0;
-                moviePlayer.src = '';
-            }
-        });
-
-        // Pause video if user presses Escape key
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && videoModal.style.display === 'flex') {
-                videoModal.style.display = 'none';
-                moviePlayer.pause();
-                moviePlayer.currentTime = 0;
-                moviePlayer.src = '';
-            }
-        });
-    }
-});
+}); // End of DOMContentLoaded
+                                                   

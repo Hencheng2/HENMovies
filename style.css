@@ -23,6 +23,8 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     scroll-behavior: smooth;
+    /* Ensured no hidden overflow by default unless explicitly set by JS for modal */
+    overflow-x: hidden; /* Prevents horizontal scroll from responsive issues */
 }
 
 /* Header */
@@ -41,7 +43,7 @@ header {
     align-items: center;
     max-width: 1400px;
     margin: 0 auto;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    flex-wrap: wrap;
 }
 
 .site-title {
@@ -66,7 +68,7 @@ nav {
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
-    margin-top: 5px; /* Adjust for wrap */
+    margin-top: 5px;
 }
 
 nav ul {
@@ -78,8 +80,8 @@ nav ul {
 .search-bar-container {
     display: flex;
     gap: 8px;
-    flex-grow: 1; /* Allow search bar to take available space */
-    max-width: 400px; /* Limit search bar width */
+    flex-grow: 1;
+    max-width: 400px;
 }
 
 #search-input {
@@ -109,16 +111,16 @@ nav ul {
     color: white;
     padding: 10px 20px;
     border: none;
-    border-radius: 25px; /* More rounded buttons */
+    border-radius: 25px;
     cursor: pointer;
     font-size: 1em;
     font-weight: bold;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     text-decoration: none;
-    display: inline-flex; /* For better alignment of text/icons */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
 }
 
 .violet-button:hover {
@@ -184,13 +186,13 @@ h2 {
 .theme-button {
     min-width: 160px;
     text-align: center;
-    padding: 12px 25px; /* Slightly larger padding */
+    padding: 12px 25px;
 }
 
 /* Movie Grids */
 .movie-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Adjusted min-width */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 25px;
     justify-items: center;
 }
@@ -212,7 +214,7 @@ h2 {
 
 .movie-card img {
     width: 100%;
-    height: 320px; /* Consistent height for posters */
+    height: 320px;
     object-fit: cover;
     display: block;
 }
@@ -223,7 +225,7 @@ h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Slightly darker overlay */
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -264,7 +266,7 @@ h2 {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    position: relative; /* For the close button positioning */
+    position: relative;
 }
 
 .movie-request textarea {
@@ -316,29 +318,34 @@ footer {
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Video Player Modal */
+/* Video Player Modal - CRITICAL Default State */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 2000; /* Sit on top */
+    /* THIS IS THE KEY: It must be hidden by default */
+    display: none; /* Changed from 'display: none !important;' to allow JS to override easily */
+    position: fixed; /* Stays in place relative to the viewport */
+    z-index: 2000; /* Ensures it's on top of other content */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
     height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0, 0, 0, 0.9); /* Black w/ opacity */
+    background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black background */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    /* transition: opacity 0.3s ease; /* Optional: for fade in/out if using opacity */
+}
+
+/* When the modal is active (via JS setting display: flex;) */
+.modal.show { /* You could use this class via JS to make it visible, but direct style.display is also fine */
     display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .modal-content {
     background-color: #111;
-    margin: auto;
+    margin: auto; /* Centers content for browsers that don't fully support flex centering */
     padding: 20px;
     border: 1px solid #888;
     width: 90%;
-    max-width: 900px; /* Max width for the video player */
+    max-width: 900px;
     border-radius: 10px;
     position: relative;
     box-shadow: 0 5px 15px rgba(0,0,0,0.7);
@@ -354,92 +361,75 @@ footer {
 #movie-player {
     width: 100%;
     height: auto;
-    min-height: 300px; /* Ensure a minimum height for the video */
+    min-height: 300px;
     background-color: black;
     border-radius: 5px;
-    display: block; /* Ensures no extra space below video */
+    display: block;
 }
 
 
 /* --- Responsive Design --- */
 
-/* For screens smaller than 768px (e.g., tablets) */
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
         gap: 15px;
         text-align: center;
     }
-
     nav {
         flex-direction: column;
         width: 100%;
         gap: 10px;
     }
-
     nav ul {
         flex-direction: column;
         width: 100%;
         gap: 10px;
     }
-
     .search-bar-container {
         width: 100%;
         max-width: none;
     }
-
     #search-input {
         width: 100%;
     }
-
     .violet-button {
         width: 100%;
-        max-width: 300px; /* Limit button width on smaller screens */
+        max-width: 300px;
     }
-
     h1 {
         font-size: 1.8em;
     }
-
     h2 {
         font-size: 2em;
     }
-
     main {
         padding: 20px 15px;
     }
-
     section {
         padding: 20px;
     }
-
     .theme-buttons-container {
         flex-direction: column;
         gap: 10px;
     }
-
     .movie-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Smaller cards */
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;
     }
-
     .movie-card img {
         height: 280px;
     }
-
     .movie-details-overlay h3 {
         font-size: 1.2em;
     }
-
     .movie-details-overlay p {
         font-size: 0.85em;
     }
-
     .movie-details-overlay .watch-now-button {
         padding: 10px 20px;
         font-size: 1em;
     }
-
     .modal-content {
         width: 95%;
         padding: 15px;
@@ -449,16 +439,13 @@ footer {
     }
 }
 
-/* For screens smaller than 480px (e.g., mobile phones) */
 @media (max-width: 480px) {
     header {
         padding: 10px 15px;
     }
-
     .site-title {
         font-size: 1.6em;
     }
-
     .search-bar-container {
         flex-direction: column;
         align-items: stretch;
@@ -468,38 +455,31 @@ footer {
         margin-right: 0;
         margin-bottom: 10px;
     }
-
     nav ul li {
         margin-left: 0;
     }
-
     h2 {
         font-size: 1.8em;
         margin-bottom: 20px;
     }
-
     .movie-grid {
-        grid-template-columns: 1fr; /* Single column layout */
+        grid-template-columns: 1fr;
         gap: 20px;
     }
-
     .movie-card img {
         height: 250px;
     }
-
     .movie-request textarea {
         min-height: 80px;
         padding: 10px;
     }
-
     .movie-request button[type="submit"] {
         padding: 12px;
     }
-
     .modal-content {
         padding: 10px;
     }
     .modal-content h3 {
         font-size: 1.2em;
     }
-}
+    }

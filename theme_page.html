@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HENmovies - Theme</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1 class="site-title"><a href="index.html">HENmovies</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="violet-button">Home</a></li>
+                    </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="movie-list-by-theme">
+            <h2 id="theme-page-title"></h2>
+            <div class="movie-grid" id="theme-movies-grid">
+                </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 HENmovies. All rights reserved.</p>
+    </footer>
+
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-video-modal">&times;</span>
+            <h3 id="modal-movie-title"></h3>
+            <video id="movie-player" controls preload="auto" width="100%" height="auto">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script src="data/movies.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

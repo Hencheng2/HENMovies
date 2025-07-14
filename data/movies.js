@@ -110,6 +110,16 @@ const movies = [
         year: 2021,
         image: 'movie_images/documentary_1.jpg',
         video: 'movies/documentary_1.mp4'
+    },
+    {
+        id: 'dave_kill_nod',
+        name: 'Dave and the Kill Nod',
+        theme: 'Comedy',
+        length: '30 sec',
+        type: 'Movie',
+        year: 2024,
+        image: 'movie_images/dave_kill_nod.jpg',
+        video: 'movies/dave_kill_nod.mp4'
     }
 ];
 

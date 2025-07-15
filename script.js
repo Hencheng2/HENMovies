@@ -18,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
-    // Removed: const requestMovieBtn = document.getElementById('request-movie-btn');
-    // Removed: const movieRequestSection = document.getElementById('movie-request-section');
-    // Removed: const closeRequestFormBtn = document.getElementById('close-request-form');
-    // Removed: const movieRequestForm = document.getElementById('movie-request-form');
-    // Removed: const movieRequestTextarea = document.getElementById('movie-request-text');
     const featuredSectionTitle = document.querySelector('.featured-movies h2'); // Added for dynamic title
+
+    // NEW ELEMENTS FOR DROPDOWN
+    const themeDropdownToggle = document.getElementById('theme-dropdown-toggle');
+    const themeButtonsWrapper = document.getElementById('theme-buttons-wrapper');
+
 
     // Theme page specific elements (check if they exist before using them)
     const themePageTitle = document.getElementById('theme-page-title');
@@ -175,8 +175,18 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButtonsContainer.appendChild(themeButton);
         });
 
-        // Populate Featured Movies (initially, show first 6 movies as featured)
-        // Adjust slice(0, 6) to show more or less featured movies as desired.
+        // NEW DROPDOWN TOGGLE LOGIC
+        if (themeDropdownToggle && themeButtonsWrapper) {
+            themeDropdownToggle.addEventListener('click', () => {
+                themeButtonsWrapper.classList.toggle('visible');
+                // You might also want to scroll to the section if it opens off-screen
+                if (themeButtonsWrapper.classList.contains('visible')) {
+                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        }
+
+        // Populate Featured Movies (initially, show first 6 movies)
         const initialFeaturedMovies = movies.slice(0, 6);
         renderMovies(initialFeaturedMovies, featuredMoviesGrid);
 
@@ -196,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
                 }
             } else {
-                // If search term is empty, revert to initial featured movies
+                // If search term is empty, revert to initial featured movies (first 6 from the full list)
                 filteredMovies = movies.slice(0, 6);
                 if (featuredSectionTitle) {
                     featuredSectionTitle.textContent = 'Featured Movies';
@@ -229,8 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-
-        // Removed: Movie Request Form Toggle Logic and submission handling
     }
 
 
@@ -241,19 +249,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedTheme = urlParams.get('theme');
         const searchTermFromHome = urlParams.get('search'); // Check if redirected from home search
 
+        const allMovies = movies; // Reverted: Now works with all movies.
+
         let moviesToDisplay = [];
 
         if (selectedTheme) {
-            // Display movies for a specific theme
+            // Display movies for a specific theme (all of them)
             themePageTitle.textContent = `${selectedTheme} Movies`;
-            moviesToDisplay = movies.filter(movie => movie.theme === selectedTheme);
+            moviesToDisplay = allMovies.filter(movie => movie.theme === selectedTheme);
         } else if (searchTermFromHome) {
-            // If redirected here with a search term, display search results on this page.
-            // Note: For a primary search, redirecting to index.html is often better
-            // as it has the search bar. This handles showing results if theme_page is
-            // accessed with a search parameter directly.
+            // If redirected here with a search term, display search results on this page (all movies).
             themePageTitle.textContent = `Search Results for "${searchTermFromHome}"`;
-            moviesToDisplay = movies.filter(movie =>
+            moviesToDisplay = allMovies.filter(movie =>
                 movie.name.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
                 movie.theme.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
                 String(movie.year).includes(searchTermFromHome)
@@ -261,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Default: show all movies if no theme or search term specified in URL
             themePageTitle.textContent = 'All Movies';
-            moviesToDisplay = movies;
+            moviesToDisplay = allMovies;
         }
 
         renderMovies(moviesToDisplay, themeMoviesGrid);

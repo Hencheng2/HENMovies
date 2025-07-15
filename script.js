@@ -12,19 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Select core DOM elements
     const body = document.body; // Reference to the body for overflow control
-    // mainContent is not directly used for modal visibility, but kept for context.
-    // const mainContent = document.querySelector('main');
 
     // Home page specific elements (check if they exist before using them)
     const themeButtonsContainer = document.getElementById('theme-buttons-container');
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
-    const requestMovieBtn = document.getElementById('request-movie-btn');
-    const movieRequestSection = document.getElementById('movie-request-section');
-    const closeRequestFormBtn = document.getElementById('close-request-form');
-    const movieRequestForm = document.getElementById('movie-request-form');
-    const movieRequestTextarea = document.getElementById('movie-request-text');
+    // Removed: const requestMovieBtn = document.getElementById('request-movie-btn');
+    // Removed: const movieRequestSection = document.getElementById('movie-request-section');
+    // Removed: const closeRequestFormBtn = document.getElementById('close-request-form');
+    // Removed: const movieRequestForm = document.getElementById('movie-request-form');
+    // Removed: const movieRequestTextarea = document.getElementById('movie-request-text');
     const featuredSectionTitle = document.querySelector('.featured-movies h2'); // Added for dynamic title
 
     // Theme page specific elements (check if they exist before using them)
@@ -232,39 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Movie Request Form Toggle Logic
-        if (requestMovieBtn && movieRequestSection) {
-            requestMovieBtn.addEventListener('click', () => {
-                movieRequestSection.classList.toggle('hidden'); // Toggle visibility
-                if (!movieRequestSection.classList.contains('hidden')) {
-                    // Scroll into view only if it's now visible
-                    movieRequestSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                    movieRequestTextarea.focus(); // Focus on the textarea for immediate input
-                }
-            });
-        }
-
-        if (closeRequestFormBtn && movieRequestSection) {
-            closeRequestFormBtn.addEventListener('click', () => {
-                movieRequestSection.classList.add('hidden'); // Hide it
-                movieRequestTextarea.value = ''; // Clear textarea on close
-            });
-        }
-
-        if (movieRequestForm) {
-            movieRequestForm.addEventListener('submit', (event) => {
-                event.preventDefault(); // Stop default form submission (prevents page reload)
-                const requestText = movieRequestTextarea.value.trim();
-                if (requestText) {
-                    // In a real application, you'd send this data to a server (e.g., via fetch API)
-                    alert(`Your request for "${requestText}" has been submitted. Thank you! (This is a demo message, no data is saved)`);
-                    movieRequestTextarea.value = ''; // Clear the input field
-                    movieRequestSection.classList.add('hidden'); // Hide the form
-                } else {
-                    alert('Please enter your movie request before submitting.');
-                }
-            });
-        }
+        // Removed: Movie Request Form Toggle Logic and submission handling
     }
 
 
@@ -302,4 +268,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // End of DOMContentLoaded
-                

@@ -1,40 +1,71 @@
 // script.js
 
+// Declare a global variable for the YouTube player
+let youtubePlayer;
+
+// This function is automatically called by the YouTube IFrame Player API when it's loaded
+function onYouTubeIframeAPIReady() {
+    youtubePlayer = new YT.Player('movie-player', { // 'movie-player' is the ID of your iframe
+        height: '450', // Match height from HTML or set dynamically
+        width: '100%',  // Match width from HTML or set dynamically
+        playerVars: {
+            // These parameters customize the player appearance and behavior
+            'controls': 0, // 0 = Hide player controls (play/pause, progress bar etc.)
+                           // 1 = Show player controls (default)
+            'modestbranding': 1, // 1 = Hide the YouTube logo (only shows a small text link)
+            'rel': 0, // 0 = Don't show related videos at the end
+            'showinfo': 0, // 0 = Hide video title and uploader info (deprecated for modern embeds, but good to have)
+            'autoplay': 1, // 1 = Autoplay video when loaded (we'll control this via JS)
+            'fs': 1, // Allow fullscreen button
+            'iv_load_policy': 3 // Do not show video annotations by default
+        },
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+// Function called when the YouTube player is ready
+function onPlayerReady(event) {
+    // You can add logic here if you need to do something as soon as the player is ready
+    console.log('YouTube Player is Ready!');
+}
+
+// Function called when the player's state changes (e.g., playing, paused, ended)
+function onPlayerStateChange(event) {
+    console.log('Player state changed:', event.data);
+    if (event.data === YT.PlayerState.ENDED) {
+        console.log('Video has ended.');
+        // You might want to close the modal or do something else here
+        // closeVideoModal(); // Example: Close modal when video ends
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
-    // IMPORTANT: Ensure movies.js is loaded BEFORE script.js in your HTML.
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
         console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
         return;
     }
 
-    // Select core DOM elements
     const body = document.body;
-
-    // Home page specific elements
     const themeButtonsContainer = document.getElementById('theme-buttons-container');
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const featuredSectionTitle = document.querySelector('.featured-movies h2');
-
-    // DROPDOWN ELEMENTS
     const themeDropdownToggle = document.getElementById('theme-dropdown-toggle');
-    const themeButtonsWrapper = document.getElementById('theme-buttons-wrapper'); // This is the wrapper div for theme buttons
-
-    // Theme page specific elements
+    const themeButtonsWrapper = document.getElementById('theme-buttons-wrapper');
     const themePageTitle = document.getElementById('theme-page-title');
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
-
-    // Video Modal Elements
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    const moviePlayer = document.getElementById('movie-player');
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
 
     // --- 2. Helper Functions ---
-
     function createMovieCard(movie) {
         const movieCard = document.createElement('div');
         movieCard.classList.add('movie-card');
@@ -74,33 +105,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // *** MODIFIED handleWatchNowClick to use YouTube API ***
     function handleWatchNowClick(event) {
-        if (!videoModal || !moviePlayer || !modalMovieTitle) {
-            console.error('Video modal elements are missing from the DOM.');
+        // Ensure modal elements and the YouTube Player API object are ready
+        // 'youtubePlayer' will be undefined until the API script loads and onYouTubeIframeAPIReady runs
+        if (!videoModal || !youtubePlayer || !modalMovieTitle) {
+            console.error('Video modal elements or YouTube Player API not ready yet. Please wait for the API to load.');
             return;
         }
+
         const movieId = event.target.dataset.movieId;
         const movie = movies.find(m => m.id === movieId);
+
         if (movie) {
             modalMovieTitle.textContent = movie.name;
-            moviePlayer.src = movie.video;
+
+            // Load the video using the YouTube API's loadVideoById method
+            // movie.video should contain only the YouTube Video ID (e.g., 'hUfryCDaQW0')
+            youtubePlayer.loadVideoById(movie.video);
+
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
-            moviePlayer.load();
-            moviePlayer.play();
+
+            // No direct .load() or .play() needed on the iframe element;
+            // 'autoplay=1' in playerVars handles immediate playback when loaded.
         } else {
             console.error(`Movie with ID ${movieId} not found.`);
             alert('Sorry, the selected movie could not be found.');
         }
     }
 
+    // *** MODIFIED closeVideoModal to use YouTube API ***
     function closeVideoModal() {
-        if (videoModal && moviePlayer) {
+        if (videoModal && youtubePlayer) { // Ensure youtubePlayer exists
             videoModal.style.display = 'none';
             body.style.overflow = '';
-            moviePlayer.pause();
-            moviePlayer.currentTime = 0;
-            moviePlayer.src = '';
+
+            // Stop the video using the YouTube API's stopVideo method
+            youtubePlayer.stopVideo();
+
             modalMovieTitle.textContent = '';
         }
     }
@@ -123,10 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic ---
+    // (This part remains largely the same as before)
 
-    // Home Page (index.html) specific elements and logic
     if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
-        // Generate Theme Buttons
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
             themeButton.href = `theme_page.html?theme=${encodeURIComponent(theme)}`;
@@ -135,40 +177,28 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButtonsContainer.appendChild(themeButton);
         });
 
-        // REVISED DROPDOWN TOGGLE LOGIC
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
                 if (themeButtonsWrapper.classList.contains('visible')) {
-                    // Currently visible, so hide it
                     themeButtonsWrapper.classList.remove('visible');
-                    // Set display: none AFTER transition completes
                     setTimeout(() => {
                         themeButtonsWrapper.style.display = 'none';
-                    }, 500); // Match this duration with your CSS transition (0.5s)
+                    }, 500);
                 } else {
-                    // Currently hidden, so show it
-                    themeButtonsWrapper.style.display = 'block'; // Make it visible (but collapsed) instantly
-                    // Force reflow/repaint to ensure display:block applies before transition starts
+                    themeButtonsWrapper.style.display = 'block';
                     void themeButtonsWrapper.offsetWidth;
-                    themeButtonsWrapper.classList.add('visible'); // Add 'visible' to trigger transition
-
-                    // Scroll to the section if it opens off-screen
+                    themeButtonsWrapper.classList.add('visible');
                     themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
 
-
-        // Populate Featured Movies (initially, show first 6 movies)
         const initialFeaturedMovies = movies.slice(0, 6);
         renderMovies(initialFeaturedMovies, featuredMoviesGrid);
 
-
-        // Search Functionality for Home Page
         const applySearchFilter = (searchTerm) => {
             const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
             let filteredMovies;
-
             if (lowerCaseSearchTerm) {
                 filteredMovies = movies.filter(movie =>
                     movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
@@ -191,13 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
             searchButton.addEventListener('click', () => {
                 applySearchFilter(searchInput.value);
             });
-
             searchInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
                     applySearchFilter(searchInput.value);
                 }
             });
-
             const urlParams = new URLSearchParams(window.location.search);
             const initialSearchQuery = urlParams.get('search');
             if (initialSearchQuery) {
@@ -210,15 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    // Theme Page (theme_page.html) specific elements and logic
     if (themePageTitle && themeMoviesGrid) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTheme = urlParams.get('theme');
         const searchTermFromHome = urlParams.get('search');
-
         const allMovies = movies;
-
         let moviesToDisplay = [];
 
         if (selectedTheme) {
@@ -235,8 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             themePageTitle.textContent = 'All Movies';
             moviesToDisplay = allMovies;
         }
-
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
-
 }); // End of DOMContentLoaded
+        

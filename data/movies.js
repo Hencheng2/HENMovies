@@ -1,138 +1,49 @@
 // data/movies.js
-
 const movies = [
     {
-        id: 'horror_1',
-        name: 'The Whispering Woods',
-        theme: 'Horror',
-        length: '1h 35m',
-        type: 'Movie',
-        year: 2021,
-        image: 'movie_images/horror_1.jpg',
-        video: 'movies/horror_1.mp4'
-    },
-    {
-        id: 'horror_2',
-        name: 'Midnight Echoes',
-        theme: 'Horror',
-        length: '1h 40m',
-        type: 'Movie',
-        year: 2023,
-        image: 'movie_images/horror_2.jpg',
-        video: 'movies/horror_2.mp4'
-    },
-    {
-        id: 'drama_1',
-        name: 'Echoes of Tomorrow',
-        theme: 'Drama',
-        length: '2h 05m',
-        type: 'Movie',
-        year: 2022,
-        image: 'movie_images/drama_1.jpg',
-        video: 'movies/drama_1.mp4'
-    },
-    {
-        id: 'drama_2',
-        name: 'The Silent Pact',
-        theme: 'Drama',
-        length: '1h 58m',
-        type: 'Movie',
-        year: 2024,
-        image: 'movie_images/drama_2.jpg',
-        video: 'movies/drama_2.mp4'
-    },
-    {
-        id: 'action_1',
-        name: 'Code Red Pursuit',
-        theme: 'Action',
-        length: '1h 55m',
-        type: 'Movie',
-        year: 2023,
-        image: 'movie_images/action_1.jpg',
-        video: 'movies/action_1.mp4'
-    },
-    {
-        id: 'comedy_1',
-        name: 'Laugh Riot Express',
-        theme: 'Comedy',
+        id: 'the_great_adventure', // Unique ID for this movie
+        name: 'The Great Adventure', // Movie title displayed on the card
+        theme: 'Action', // Theme for filtering
         length: '1h 30m',
         type: 'Movie',
-        year: 2022,
-        image: 'movie_images/comedy_1.jpg',
-        video: 'movies/comedy_1.mp4'
-    },
-    {
-        id: 'scifi_1',
-        name: 'Nebula Genesis',
-        theme: 'Sci-Fi',
-        length: '2h 10m',
-        type: 'Movie',
-        year: 2024,
-        image: 'movie_images/scifi_1.jpg',
-        video: 'movies/scifi_1.mp4'
-    },
-    {
-        id: 'thriller_1',
-        name: 'The Unseen Threat',
-        theme: 'Thriller',
-        length: '1h 48m',
-        type: 'Movie',
         year: 2023,
-        image: 'movie_images/thriller_1.jpg',
-        video: 'movies/thriller_1.mp4'
-    },
-    {
-        id: 'you_can_never', // Unique ID for this movie
-        name: 'you can never make it', // Movie title displayed on the card
-        theme: 'Comedy', // Theme for filtering
-        length: '47.2 sec',
-        type: 'Meme',
-        year: 2023,
-        image: 'you_can_never.jpg', // Path to your movie poster image
+        image: 'movie_images/adventure.jpg', // Path to your movie poster image
         // IMPORTANT: This is the YouTube Video ID you provided: hUfryCDaQW0
         video: 'hUfryCDaQW0'
     },
     {
-        id: 'animation_1',
-        name: 'Whimsical Wonders',
-        theme: 'Animation',
-        length: '1h 25m',
-        type: 'Movie',
-        year: 2022,
-        image: 'movie_images/animation_1.jpg',
-        video: 'movies/animation_1.mp4'
-    },
-    {
-        id: 'fantasy_1',
-        name: 'Chronicles of Eldoria',
-        theme: 'Fantasy',
-        length: '2h 15m',
-        type: 'Movie',
-        year: 2023,
-        image: 'movie_images/fantasy_1.jpg',
-        video: 'movies/fantasy_1.mp4'
-    },
-    {
-        id: 'documentary_1',
-        name: 'Wilderness Unveiled',
-        theme: 'Documentary',
-        length: '1h 10m',
-        type: 'Movie',
-        year: 2021,
-        image: 'movie_images/documentary_1.jpg',
-        video: 'movies/documentary_1.mp4'
-    },
-    {
-        id: 'dave_kill_nod',
-        name: 'Dave and the Kill Nod',
+        id: 'funny_cats_compilation', // Unique ID for this movie
+        name: 'Funny Cats Compilation',
         theme: 'Comedy',
-        length: '30 sec',
-        type: 'Movie',
-        year: 2024,
-        image: 'movie_images/dave_kill_nod.jpg',
-        video: 'movies/dave_kill_nod.mp4'
-    }
+        length: '15m',
+        type: 'Short',
+        year: 2022,
+        image: 'movie_images/cats.jpg', // Path to your movie poster image
+        // IMPORTANT: Replace 'xvFZjo5PgG0' with the actual YouTube Video ID for *this* movie
+        video: 'xvFZjo5PgG0' // Example ID. **YOU MUST REPLACE THIS FOR YOUR OWN VIDEOS**
+    },
+    // Add more movie objects here following the same structure.
+    // For each new movie:
+    // 1. Upload its video to YouTube and get its unique Video ID.
+    // 2. Add a new object to this 'movies' array.
+    // 3. Make sure 'id' is unique, 'name' is correct, 'image' points to your image,
+    //    and 'video' contains ONLY the YouTube Video ID.
+
+    // Example of another movie you might add:
+    // {
+    //     id: 'mystic_forest',
+    //     name: 'Mystery of the Mystic Forest',
+    //     theme: 'Fantasy',
+    //     length: '1h 55m',
+    //     type: 'Movie',
+    //     year: 2021,
+    //     image: 'movie_images/mystic_forest.jpg',
+    //     video: 'ANOTHER_YOUTUBE_VIDEO_ID_HERE' // <--- REPLACE THIS WITH THE ACTUAL YOUTUBE ID
+    // },
 ];
 
-// Exporting themes for dynamic theme page generation
-const themes = [...new Set(movies.map(movie => movie.theme))].sort();
+const themes = [
+    'Action', 'Comedy', 'Drama', 'Sci-Fi', 'Fantasy', 'Horror',
+    'Adventure', 'Animation', 'Thriller', 'Romance', 'Mystery',
+    'Documentary', 'Family', 'Musical', 'Crime', 'Western', 'War'
+];

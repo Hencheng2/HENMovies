@@ -205,9 +205,9 @@ h2 {
 .theme-buttons-wrapper {
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.5s ease-out, padding-top 0.5s ease-out, padding-bottom 0.5s ease-out;
-    padding-top: 0;
-    padding-bottom: 0;
+    transition: max-height 0.5s ease-out, opacity 0.5s ease-out; /* Include opacity in transition */
+    display: none; /* Add this to ensure it's hidden from the start */
+    opacity: 0; /* Add opacity for a fade effect during transition */
 }
 
 /* Class to show the theme buttons wrapper */
@@ -215,7 +215,10 @@ h2 {
     max-height: 500px; /* A value larger than expected max height of content */
     padding-top: 15px; /* Add some padding when visible */
     padding-bottom: 15px;
+    display: block; /* Or flex, depending on your container's direct children layout needs */
+    opacity: 1; /* Make it fully visible */
 }
+
 
 /* Theme Selection - UPDATED FOR 2-COLUMN LAYOUT within the wrapper */
 .theme-selection .theme-buttons-container {
@@ -485,3 +488,4 @@ footer {
         padding: 10px 20px;
     }
     }
+        

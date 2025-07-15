@@ -82,6 +82,17 @@ const movies = [
         video: 'movies/thriller_1.mp4'
     },
     {
+        id: 'you_can_never', // Unique ID for this movie
+        name: 'you can never make it', // Movie title displayed on the card
+        theme: 'Comedy', // Theme for filtering
+        length: '47.2 sec',
+        type: 'Meme',
+        year: 2023,
+        image: 'you_can_never.jpg', // Path to your movie poster image
+        // IMPORTANT: This is the YouTube Video ID you provided: hUfryCDaQW0
+        video: 'hUfryCDaQW0'
+    },
+    {
         id: 'animation_1',
         name: 'Whimsical Wonders',
         theme: 'Animation',

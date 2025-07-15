@@ -175,32 +175,25 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButtonsContainer.appendChild(themeButton);
         });
 
-        // DROPDOWN TOGGLE LOGIC
+        // CORRECTED DROPDOWN TOGGLE LOGIC
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
-                if (themeButtonsWrapper.classList.contains('hidden')) {
-                    // If currently hidden (display: none), remove hidden instantly
-                    // then add visible for the animation
-                    themeButtonsWrapper.classList.remove('hidden');
-                    // Force reflow for transition to apply (important when changing display property)
-                    void themeButtonsWrapper.offsetWidth; // Trigger reflow
-                    themeButtonsWrapper.classList.add('visible');
-                } else {
-                    // If currently visible, remove visible for animation
-                    themeButtonsWrapper.classList.remove('visible');
-                    // Add hidden after transition completes
-                    // The transition duration is 0.5s from style.css
-                    themeButtonsWrapper.addEventListener('transitionend', function handler() {
-                        if (!themeButtonsWrapper.classList.contains('visible')) {
-                            themeButtonsWrapper.classList.add('hidden');
-                        }
-                        // Remove the event listener after it's fired once to prevent memory leaks
-                        themeButtonsWrapper.removeEventListener('transitionend', handler);
-                    });
-                }
-
-                // Scroll to the section if it opens off-screen
                 if (themeButtonsWrapper.classList.contains('visible')) {
+                    // If currently visible, start hide animation
+                    themeButtonsWrapper.classList.remove('visible');
+                    // After transition, add 'hidden' to fully hide (display: none)
+                    themeButtonsWrapper.addEventListener('transitionend', function handler() {
+                        themeButtonsWrapper.classList.add('hidden');
+                        themeButtonsWrapper.removeEventListener('transitionend', handler); // Clean up
+                    }, { once: true }); // Ensure listener runs only once
+                } else {
+                    // If currently hidden, remove 'hidden' first, then add 'visible' for animation
+                    themeButtonsWrapper.classList.remove('hidden');
+                    // Force reflow/repaint so browser applies display:block before transition
+                    void themeButtonsWrapper.offsetWidth; // This line forces reflow
+                    themeButtonsWrapper.classList.add('visible');
+
+                    // Scroll to the section if it opens off-screen
                     themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
@@ -295,3 +288,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // End of DOMContentLoaded
+            

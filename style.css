@@ -23,7 +23,6 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     scroll-behavior: smooth;
-    /* Ensured no hidden overflow by default unless explicitly set by JS for modal */
     overflow-x: hidden; /* Prevents horizontal scroll from responsive issues */
 }
 
@@ -174,24 +173,59 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* Theme Selection - UPDATED FOR 2-COLUMN LAYOUT */
-.theme-buttons-container {
-    display: grid; /* Use CSS Grid */
-    grid-template-columns: repeat(2, 1fr); /* Two columns, each taking equal space */
-    gap: 15px; /* Spacing between buttons */
-    max-width: 600px; /* Optional: Limit the max width to keep pairs closer */
-    margin: 10px auto; /* Center the grid container itself */
+/* Style for the new "Explore by Theme" dropdown toggle button */
+.theme-toggle-button {
+    display: block;
+    width: fit-content;
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    padding: 15px 30px;
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-color);
+    background-color: var(--primary-color);
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.theme-toggle-button:hover {
+    background-color: var(--primary-color); /* Keep the same on hover, or a slightly different shade */
+    transform: translateY(-1px); /* Slight lift */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.theme-toggle-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Wrapper for the theme buttons container - Hidden by default with max-height */
+.theme-buttons-wrapper {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.5s ease-out, padding-top 0.5s ease-out, padding-bottom 0.5s ease-out;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Class to show the theme buttons wrapper */
+.theme-buttons-wrapper.visible {
+    max-height: 500px; /* A value larger than expected max height of content */
+    padding-top: 15px; /* Add some padding when visible */
+    padding-bottom: 15px;
+}
+
+/* Theme Selection - UPDATED FOR 2-COLUMN LAYOUT within the wrapper */
+.theme-selection .theme-buttons-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto; /* Center within its wrapper */
     padding: 10px 0; /* Keep your padding */
 }
-
-/* Optional: Adjust individual button width if needed, but 1fr should handle it */
-.theme-button {
-    /* You might want to remove min-width if 1fr makes them too wide. */
-    /* min-width: 160px; */ /* Consider removing this or reducing it */
-    text-align: center;
-    padding: 12px 25px;
-}
-
 
 /* Movie Grids */
 .movie-grid {
@@ -264,14 +298,8 @@ h2 {
     border-radius: 30px;
 }
 
-/* Removed: Movie Request Section CSS */
-/* .movie-request { ... } */
-/* .movie-request textarea { ... } */
-/* .movie-request button[type="submit"] { ... } */
-/* .movie-request .close-button { ... } */
-
 .hidden {
-    display: none; /* Keep this utility class if it's used elsewhere for hiding elements */
+    display: none;
 }
 
 /* Footer */
@@ -286,7 +314,6 @@ footer {
 
 /* Video Player Modal - CRITICAL Default State */
 .modal {
-    /* THIS IS THE KEY: It must be hidden by default */
     display: none;
     position: fixed;
     z-index: 2000;
@@ -300,7 +327,7 @@ footer {
 }
 
 /* When the modal is active (via JS setting display: flex;) */
-.modal.show { /* You could use this class via JS to make it visible, but direct style.display is also fine */
+.modal.show {
     display: flex;
 }
 
@@ -375,9 +402,14 @@ footer {
         padding: 20px;
     }
     /* Updated responsive rule for theme buttons */
-    .theme-buttons-container {
+    .theme-selection .theme-buttons-container { /* Ensure specificity */
         grid-template-columns: 1fr; /* On smaller screens, make it a single column */
         max-width: 300px; /* Limit width for single column to keep it neat */
+    }
+    /* Adjust the wrapper's padding for smaller screens if needed */
+    .theme-buttons-wrapper.visible {
+        padding-top: 10px;
+        padding-bottom: 10px;
     }
     .movie-grid {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -402,6 +434,13 @@ footer {
     }
     .modal-content h3 {
         font-size: 1.5em;
+    }
+
+    .theme-toggle-button { /* Responsive for new button */
+        font-size: 1.5em;
+        padding: 12px 25px;
+        max-width: 90%;
+        margin-bottom: 15px;
     }
 }
 
@@ -435,13 +474,14 @@ footer {
     .movie-card img {
         height: 250px;
     }
-    /* Removed: Movie Request responsive CSS */
-    /* .movie-request textarea { ... } */
-    /* .movie-request button[type="submit"] { ... } */
     .modal-content {
         padding: 10px;
     }
     .modal-content h3 {
         font-size: 1.2em;
     }
-}
+    .theme-toggle-button { /* Responsive for new button */
+        font-size: 1.2em;
+        padding: 10px 20px;
+    }
+    }

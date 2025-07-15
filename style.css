@@ -174,20 +174,24 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* Theme Selection */
+/* Theme Selection - UPDATED FOR 2-COLUMN LAYOUT */
 .theme-buttons-container {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    padding: 10px 0;
+    display: grid; /* Use CSS Grid */
+    grid-template-columns: repeat(2, 1fr); /* Two columns, each taking equal space */
+    gap: 15px; /* Spacing between buttons */
+    max-width: 600px; /* Optional: Limit the max width to keep pairs closer */
+    margin: 10px auto; /* Center the grid container itself */
+    padding: 10px 0; /* Keep your padding */
 }
 
+/* Optional: Adjust individual button width if needed, but 1fr should handle it */
 .theme-button {
-    min-width: 160px;
+    /* You might want to remove min-width if 1fr makes them too wide. */
+    /* min-width: 160px; */ /* Consider removing this or reducing it */
     text-align: center;
     padding: 12px 25px;
 }
+
 
 /* Movie Grids */
 .movie-grid {
@@ -260,52 +264,14 @@ h2 {
     border-radius: 30px;
 }
 
-/* Movie Request Section */
-.movie-request {
-    background-color: var(--card-background);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    position: relative;
-}
-
-.movie-request textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: #444;
-    color: var(--text-color);
-    font-size: 1em;
-    resize: vertical;
-    transition: border-color 0.3s ease;
-}
-
-.movie-request textarea:focus {
-    border-color: var(--accent-color);
-    outline: none;
-}
-
-.movie-request button[type="submit"] {
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 0 auto;
-    padding: 15px;
-    border-radius: 30px;
-}
-
-.movie-request .close-button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 1.8em;
-}
+/* Removed: Movie Request Section CSS */
+/* .movie-request { ... } */
+/* .movie-request textarea { ... } */
+/* .movie-request button[type="submit"] { ... } */
+/* .movie-request .close-button { ... } */
 
 .hidden {
-    display: none;
+    display: none; /* Keep this utility class if it's used elsewhere for hiding elements */
 }
 
 /* Footer */
@@ -321,17 +287,16 @@ footer {
 /* Video Player Modal - CRITICAL Default State */
 .modal {
     /* THIS IS THE KEY: It must be hidden by default */
-    display: none; /* Changed from 'display: none !important;' to allow JS to override easily */
-    position: fixed; /* Stays in place relative to the viewport */
-    z-index: 2000; /* Ensures it's on top of other content */
+    display: none;
+    position: fixed;
+    z-index: 2000;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent black background */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    /* transition: opacity 0.3s ease; /* Optional: for fade in/out if using opacity */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
 }
 
 /* When the modal is active (via JS setting display: flex;) */
@@ -341,7 +306,7 @@ footer {
 
 .modal-content {
     background-color: #111;
-    margin: auto; /* Centers content for browsers that don't fully support flex centering */
+    margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 90%;
@@ -409,9 +374,10 @@ footer {
     section {
         padding: 20px;
     }
+    /* Updated responsive rule for theme buttons */
     .theme-buttons-container {
-        flex-direction: column;
-        gap: 10px;
+        grid-template-columns: 1fr; /* On smaller screens, make it a single column */
+        max-width: 300px; /* Limit width for single column to keep it neat */
     }
     .movie-grid {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -469,17 +435,13 @@ footer {
     .movie-card img {
         height: 250px;
     }
-    .movie-request textarea {
-        min-height: 80px;
-        padding: 10px;
-    }
-    .movie-request button[type="submit"] {
-        padding: 12px;
-    }
+    /* Removed: Movie Request responsive CSS */
+    /* .movie-request textarea { ... } */
+    /* .movie-request button[type="submit"] { ... } */
     .modal-content {
         padding: 10px;
     }
     .modal-content h3 {
         font-size: 1.2em;
     }
-    }
+        }

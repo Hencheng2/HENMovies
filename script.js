@@ -1,47 +1,6 @@
 // script.js
 
-// Declare a global variable for the YouTube player
-let youtubePlayer;
-
-// This function is automatically called by the YouTube IFrame Player API when it's loaded
-function onYouTubeIframeAPIReady() {
-    youtubePlayer = new YT.Player('movie-player', { // 'movie-player' is the ID of your iframe
-        height: '450', // Match height from HTML or set dynamically
-        width: '100%',  // Match width from HTML or set dynamically
-        playerVars: {
-            // These parameters customize the player appearance and behavior
-            'controls': 0, // 0 = Hide player controls (play/pause, progress bar etc.)
-                           // 1 = Show player controls (default)
-            'modestbranding': 1, // 1 = Hide the YouTube logo (only shows a small text link)
-            'rel': 0, // 0 = Don't show related videos at the end
-            'showinfo': 0, // 0 = Hide video title and uploader info (deprecated for modern embeds, but good to have)
-            'autoplay': 1, // 1 = Autoplay video when loaded (we'll control this via JS)
-            'fs': 1, // Allow fullscreen button
-            'iv_load_policy': 3 // Do not show video annotations by default
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
-}
-
-// Function called when the YouTube player is ready
-function onPlayerReady(event) {
-    // You can add logic here if you need to do something as soon as the player is ready
-    console.log('YouTube Player is Ready!');
-}
-
-// Function called when the player's state changes (e.g., playing, paused, ended)
-function onPlayerStateChange(event) {
-    console.log('Player state changed:', event.data);
-    if (event.data === YT.PlayerState.ENDED) {
-        console.log('Video has ended.');
-        // You might want to close the modal or do something else here
-        // closeVideoModal(); // Example: Close modal when video ends
-    }
-}
-
+// Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
@@ -62,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
+    // Now we get a direct reference to the iframe element, no YouTube API object needed
+    const moviePlayer = document.getElementById('movie-player'); 
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
 
@@ -105,12 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** MODIFIED handleWatchNowClick to use YouTube API ***
+    // *** MODIFIED handleWatchNowClick for Dailymotion embedding ***
     function handleWatchNowClick(event) {
-        // Ensure modal elements and the YouTube Player API object are ready
-        // 'youtubePlayer' will be undefined until the API script loads and onYouTubeIframeAPIReady runs
-        if (!videoModal || !youtubePlayer || !modalMovieTitle) {
-            console.error('Video modal elements or YouTube Player API not ready yet. Please wait for the API to load.');
+        if (!videoModal || !moviePlayer || !modalMovieTitle) {
+            console.error('Video modal elements are missing from the DOM.');
             return;
         }
 
@@ -120,30 +79,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Load the video using the YouTube API's loadVideoById method
-            // movie.video should contain only the YouTube Video ID (e.g., 'hUfryCDaQW0')
-            youtubePlayer.loadVideoById(movie.video);
+            // Construct the Dailymotion embed URL
+            // The typical Dailymotion embed format is: http://www.dailymotion.com/embed/video/YOUR_VIDEO_ID?autoplay=1
+            const dailymotionEmbedUrl = `http://www.dailymotion.com/embed/video/${movie.video}?autoplay=1`;
 
+            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
+            
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
 
-            // No direct .load() or .play() needed on the iframe element;
-            // 'autoplay=1' in playerVars handles immediate playback when loaded.
         } else {
             console.error(`Movie with ID ${movieId} not found.`);
             alert('Sorry, the selected movie could not be found.');
         }
     }
 
-    // *** MODIFIED closeVideoModal to use YouTube API ***
+    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
     function closeVideoModal() {
-        if (videoModal && youtubePlayer) { // Ensure youtubePlayer exists
+        if (videoModal && moviePlayer) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
 
-            // Stop the video using the YouTube API's stopVideo method
-            youtubePlayer.stopVideo();
-
+            // Clear the iframe's src to stop the video and prevent background audio
+            moviePlayer.src = '';
+            
             modalMovieTitle.textContent = '';
         }
     }
@@ -166,8 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic ---
-    // (This part remains largely the same as before)
-
     if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
@@ -262,4 +219,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-        
+                                               

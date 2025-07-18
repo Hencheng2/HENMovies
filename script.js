@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** MODIFIED handleWatchNowClick for Dailymotion embedding ***
+    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
     function handleWatchNowClick(event) {
         if (!videoModal || !moviePlayer || !modalMovieTitle) {
             console.error('Video modal elements are missing from the DOM.');
@@ -79,12 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Construct the Dailymotion embed URL with autoplay and player=api parameter
-            // This is the key change for Dailymotion
-            const dailymotionEmbedUrl = `http://www.dailymotion.com/embed/video/${movie.video}?autoplay=1&player=api`;
+            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
+            // And add autoplay parameter
+            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
 
             moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
-            
+
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
 
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Clear the iframe's src to stop the video and prevent background audio
             moviePlayer.src = '';
-            
+
             modalMovieTitle.textContent = '';
         }
     }

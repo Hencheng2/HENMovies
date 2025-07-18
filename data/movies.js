@@ -1,33 +1,30 @@
 // data/movies.js
 const movies = [
     {
-        id: 'the_great_adventure', // Unique ID for this movie
-        name: 'The Great Adventure', // Movie title displayed on the card
-        theme: 'Action', // Theme for filtering
-        length: '1h 30m',
+        id: 'Dave_kill_nod',
+        name: 'Dave and the kill nod',
+        theme: 'Comedy',
+        length: '30 sec',
         type: 'Movie',
         year: 2023,
-        image: 'movie_images/adventure.jpg', // Path to your movie poster image
-        // IMPORTANT: This is the YouTube Video ID you provided: hUfryCDaQW0
-        video: 'hUfryCDaQW0'
+        image: 'movie_images/adventure.jpg',
+        // IMPORTANT: Replace 'xUNIQUEID_FOR_ADVENTURE' with your actual Dailymotion Video ID
+        video: 'k42u80yLZaxDZdDsv8a' // Example Dailymotion ID
     },
     {
-        id: 'funny_cats_compilation', // Unique ID for this movie
+        id: 'funny_cats_compilation',
         name: 'Funny Cats Compilation',
         theme: 'Comedy',
         length: '15m',
         type: 'Short',
         year: 2022,
-        image: 'movie_images/cats.jpg', // Path to your movie poster image
-        // IMPORTANT: Replace 'xvFZjo5PgG0' with the actual YouTube Video ID for *this* movie
-        video: 'xvFZjo5PgG0' // Example ID. **YOU MUST REPLACE THIS FOR YOUR OWN VIDEOS**
+        image: 'movie_images/cats.jpg',
+        // IMPORTANT: Replace 'xUNIQUEID_FOR_CATS' with your actual Dailymotion Video ID
+        video: 'xUNIQUEID_FOR_CATS' // Example Dailymotion ID
     },
     // Add more movie objects here following the same structure.
-    // For each new movie:
-    // 1. Upload its video to YouTube and get its unique Video ID.
-    // 2. Add a new object to this 'movies' array.
-    // 3. Make sure 'id' is unique, 'name' is correct, 'image' points to your image,
-    //    and 'video' contains ONLY the YouTube Video ID.
+    // Make sure 'id' is unique, 'name' is correct, 'image' points to your image,
+    // and 'video' contains ONLY the Dailymotion Video ID.
 
     // Example of another movie you might add:
     // {
@@ -38,7 +35,7 @@ const movies = [
     //     type: 'Movie',
     //     year: 2021,
     //     image: 'movie_images/mystic_forest.jpg',
-    //     video: 'ANOTHER_YOUTUBE_VIDEO_ID_HERE' // <--- REPLACE THIS WITH THE ACTUAL YOUTUBE ID
+    //     video: 'xUNIQUEID_FOR_MYSTIC_FOREST' // <--- REPLACE THIS WITH THE ACTUAL DAILYMOTION ID
     // },
 ];
 

@@ -69,8 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // *** MODIFIED handleWatchNowClick for Dailymotion API control and ended event ***
     function handleWatchNowClick(event) {
-        if (!videoModal || !modalMovieTitle) { // moviePlayer is no longer directly accessed here
-            console.error('Video modal elements are missing from the DOM.');
+        if (!videoModal || !modalMovieTitle) { 
+            console.error('Video modal elements are missing from the DOM (videoModal or modalMovieTitle).');
             return;
         }
 
@@ -80,21 +80,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Important: Clear any previous player and its container before creating a new one
+            // Get a reference to the main container for the player
             const playerContainer = document.getElementById('movie-player-container');
+            
             if (playerContainer) {
-                playerContainer.innerHTML = ''; // Clear old iframe
+                // Clear any existing content (old iframe or player from previous open)
+                playerContainer.innerHTML = ''; 
 
-                // Create a new div where the Dailymotion player will be inserted
-                const newPlayerDiv = document.createElement('div');
-                newPlayerDiv.id = 'dailymotion-player-div'; // Give it a unique ID for the API
-                playerContainer.appendChild(newPlayerDiv);
+                // Create the specific div that Dailymotion API will target
+                const playerTargetDiv = document.createElement('div');
+                playerTargetDiv.id = 'dailymotion-api-player'; // Give it a unique ID for the API
+                playerContainer.appendChild(playerTargetDiv);
 
                 // Initialize Dailymotion Player via API
-                dailymotionPlayerInstance = DM.player(newPlayerDiv, {
+                dailymotionPlayerInstance = DM.player(playerTargetDiv, {
                     video: movie.video, // This is your Dailymotion video ID from movies.js
                     width: '100%',
-                    height: '450',
+                    height: '450', // You can adjust this height
                     params: {
                         autoplay: true,
                         mute: false, // Set to true if you want to auto-mute on load
@@ -114,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body.style.overflow = 'hidden';
 
             } else {
-                console.error('Player container not found in HTML.');
+                console.error('Player container (#movie-player-container) not found in HTML. Check index.html');
             }
 
         } else {
@@ -257,4 +259,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-    
+            

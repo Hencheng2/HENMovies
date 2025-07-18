@@ -1,16 +1,16 @@
 // data/movies.js
 const movies = [
     {
-        id: 'dave_kill_nod',
-        name: 'Dave and the kill nod',
-        theme: 'Comedy',
-        length: '30 sec',
-        type: 'Movie',
-        year: 2023,
-        image: 'dave_kill_nod.jpg',
-        // IMPORTANT: Replace 'xUNIQUEID_FOR_ADVENTURE' with your actual Dailymotion Video ID
-        video: 'k42u80yLZaxDZdDsv8a' // Example Dailymotion ID
+    id: 'dave_and_the_kill_nod', // Must be unique and consistent
+    name: 'Dave and the Kill Nod', // This is what shows on the card
+    theme: 'Comedy', // Must exactly match a theme in your `themes` array
+    length: '0h 48m', // From your Dailymotion screenshot
+    type: 'Short', // Or 'Movie' if it's considered a full movie
+    year: 2025, // From your Dailymotion screenshot
+    image: 'movie_images/dave_and_the_kill_nod.jpg', // Make sure this path is correct and the image file exists
+    video: 'k42u80yLZaxDZdDsv8a' // Your Dailymotion video ID
     },
+
     {
         id: 'funny_cats_compilation',
         name: 'Funny Cats Compilation',

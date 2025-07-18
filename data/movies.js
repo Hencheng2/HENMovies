@@ -1,13 +1,13 @@
 // data/movies.js
 const movies = [
     {
-        id: 'Dave_kill_nod',
+        id: 'dave_kill_nod',
         name: 'Dave and the kill nod',
         theme: 'Comedy',
         length: '30 sec',
         type: 'Movie',
         year: 2023,
-        image: 'movie_images/adventure.jpg',
+        image: 'dave_kill_nod.jpg',
         // IMPORTANT: Replace 'xUNIQUEID_FOR_ADVENTURE' with your actual Dailymotion Video ID
         video: 'k42u80yLZaxDZdDsv8a' // Example Dailymotion ID
     },

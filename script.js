@@ -79,9 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Construct the Dailymotion embed URL
-            // The typical Dailymotion embed format is: http://www.dailymotion.com/embed/video/YOUR_VIDEO_ID?autoplay=1
-            const dailymotionEmbedUrl = `http://www.dailymotion.com/embed/video/${movie.video}?autoplay=1`;
+            // Construct the Dailymotion embed URL with autoplay and player=api parameter
+            // This is the key change for Dailymotion
+            const dailymotionEmbedUrl = `http://www.dailymotion.com/embed/video/${movie.video}?autoplay=1&player=api`;
 
             moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
             
@@ -219,4 +219,3 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-                                               

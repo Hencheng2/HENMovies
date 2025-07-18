@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
             // And add autoplay parameter
-            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
+            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1&endscreen=false`;
 
             moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
 

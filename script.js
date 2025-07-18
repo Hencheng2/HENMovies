@@ -21,10 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    // Now we get a direct reference to the iframe element, no YouTube API object needed
-    const moviePlayer = document.getElementById('movie-player'); 
+    // Removed: const moviePlayer = document.getElementById('movie-player'); // No longer directly accessed
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
+    // To store the Dailymotion player object instance
+    let dailymotionPlayerInstance; 
 
     // --- 2. Helper Functions ---
     function createMovieCard(movie) {
@@ -66,9 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
+    // *** MODIFIED handleWatchNowClick for Dailymotion API control and ended event ***
     function handleWatchNowClick(event) {
-        if (!videoModal || !moviePlayer || !modalMovieTitle) {
+        if (!videoModal || !modalMovieTitle) { // moviePlayer is no longer directly accessed here
             console.error('Video modal elements are missing from the DOM.');
             return;
         }
@@ -79,29 +80,66 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
-            // And add autoplay parameter
-            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1&endscreen=false`;
+            // Important: Clear any previous player and its container before creating a new one
+            const playerContainer = document.getElementById('movie-player-container');
+            if (playerContainer) {
+                playerContainer.innerHTML = ''; // Clear old iframe
 
-            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
+                // Create a new div where the Dailymotion player will be inserted
+                const newPlayerDiv = document.createElement('div');
+                newPlayerDiv.id = 'dailymotion-player-div'; // Give it a unique ID for the API
+                playerContainer.appendChild(newPlayerDiv);
 
-            videoModal.style.display = 'flex';
-            body.style.overflow = 'hidden';
+                // Initialize Dailymotion Player via API
+                dailymotionPlayerInstance = DM.player(newPlayerDiv, {
+                    video: movie.video, // This is your Dailymotion video ID from movies.js
+                    width: '100%',
+                    height: '450',
+                    params: {
+                        autoplay: true,
+                        mute: false, // Set to true if you want to auto-mute on load
+                        endscreen: false, // To prevent playing next related video
+                        controls: true, // Ensure controls are visible
+                        'ui-highlight': '8a2be2' // Optional: Change highlight color (e.g., your violet)
+                    },
+                });
+
+                // Listen for the 'ended' event
+                dailymotionPlayerInstance.on('ended', function() {
+                    console.log('Video ended, closing modal...');
+                    closeVideoModal();
+                });
+
+                videoModal.style.display = 'flex';
+                body.style.overflow = 'hidden';
+
+            } else {
+                console.error('Player container not found in HTML.');
+            }
 
         } else {
-            console.error(`Movie with ID ${movieId} not found.`);
+            console.error(`Movie with ID ${movieId} not found in movies.js.`);
             alert('Sorry, the selected movie could not be found.');
         }
     }
 
-    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
+    // *** MODIFIED closeVideoModal for Dailymotion API control ***
     function closeVideoModal() {
-        if (videoModal && moviePlayer) {
+        if (videoModal) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
 
-            // Clear the iframe's src to stop the video and prevent background audio
-            moviePlayer.src = '';
+            // Destroy the Dailymotion player instance
+            if (dailymotionPlayerInstance) {
+                dailymotionPlayerInstance.destroy();
+                dailymotionPlayerInstance = null; // Clear the reference
+            }
+            
+            // Clear the innerHTML of the player container to remove the old iframe
+            const playerContainer = document.getElementById('movie-player-container');
+            if (playerContainer) {
+                playerContainer.innerHTML = '';
+            }
 
             modalMovieTitle.textContent = '';
         }
@@ -219,3 +257,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
+    

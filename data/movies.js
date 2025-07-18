@@ -8,7 +8,7 @@ const movies = [
        type: 'Short', // Or 'Movie' if it's considered a full movie
        year: 2025, // From your Dailymotion screenshot
        image: 'movie_images/dave_kill_nod.jpg', // Make sure this path is correct and the image file exists
-       video: 'k42u80yLZaxDZdDsv8a' // Your Dailymotion video ID
+       video: 'k2FqgVQHYZlAZiDsv8a' // Your Dailymotion video ID
     },
 
     {

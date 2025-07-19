@@ -21,10 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    // Now we get a direct reference to the iframe element, no YouTube API object needed
-    const moviePlayer = document.getElementById('movie-player'); 
+    // Removed: const moviePlayer = document.getElementById('movie-player'); // No longer directly accessed
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
+    // To store the Dailymotion player object instance
+    let dailymotionPlayerInstance; 
 
     // --- 2. Helper Functions ---
     function createMovieCard(movie) {
@@ -59,49 +60,101 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function attachWatchNowListeners() {
+        console.log('*** DEBUG: Attempting to attach Watch Now listeners...');
         const watchNowButtons = document.querySelectorAll('.watch-now-button');
+        console.log(`*** DEBUG: Found ${watchNowButtons.length} Watch Now buttons.`);
+        
+        if (watchNowButtons.length === 0) {
+            console.warn('*** DEBUG: No .watch-now-button elements found. Check if movie cards are rendering correctly.');
+        }
+
         watchNowButtons.forEach(button => {
+            // Remove existing listener to prevent duplicates if renderMovies is called multiple times
             button.removeEventListener('click', handleWatchNowClick);
+            // Add the new listener
             button.addEventListener('click', handleWatchNowClick);
+            console.log(`*** DEBUG: Listener attached to button for movie ID: ${button.dataset.movieId}`);
         });
+        console.log('*** DEBUG: Finished attaching Watch Now listeners.');
     }
 
-    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
+    // *** MODIFIED handleWatchNowClick for Dailymotion API control and ended event ***
     function handleWatchNowClick(event) {
-        if (!videoModal || !moviePlayer || !modalMovieTitle) {
-            console.error('Video modal elements are missing from the DOM.');
+        console.log('*** DEBUG: Watch Now button clicked! Event target:', event.target); // <-- Added for debugging
+        if (!videoModal || !modalMovieTitle) { 
+            console.error('Video modal elements are missing from the DOM (videoModal or modalMovieTitle).');
             return;
         }
 
         const movieId = event.target.dataset.movieId;
         const movie = movies.find(m => m.id === movieId);
+        console.log(`*** DEBUG: Movie ID clicked: ${movieId}, Found movie:`, movie); // <-- Added for debugging
 
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
-            // And add autoplay parameter
-            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
+            // Get a reference to the main container for the player
+            const playerContainer = document.getElementById('movie-player-container');
+            
+            if (playerContainer) {
+                // Clear any existing content (old iframe or player from previous open)
+                playerContainer.innerHTML = ''; 
 
-            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
+                // Create the specific div that Dailymotion API will target
+                const playerTargetDiv = document.createElement('div');
+                playerTargetDiv.id = 'dailymotion-api-player'; // Give it a unique ID for the API
+                playerContainer.appendChild(playerTargetDiv);
 
-            videoModal.style.display = 'flex';
-            body.style.overflow = 'hidden';
+                // Initialize Dailymotion Player via API
+                dailymotionPlayerInstance = DM.player(playerTargetDiv, {
+                    video: movie.video, // This is your Dailymotion video ID from movies.js
+                    width: '100%',
+                    height: '450', // You can adjust this height
+                    params: {
+                        autoplay: true,
+                        mute: false, // Set to true if you want to auto-mute on load
+                        endscreen: false, // To prevent playing next related video
+                        controls: true, // Ensure controls are visible
+                        'ui-highlight': '8a2be2' // Optional: Change highlight color (e.g., your violet)
+                    },
+                });
+
+                // Listen for the 'ended' event
+                dailymotionPlayerInstance.on('ended', function() {
+                    console.log('Video ended, closing modal...');
+                    closeVideoModal();
+                });
+
+                videoModal.style.display = 'flex';
+                body.style.overflow = 'hidden';
+
+            } else {
+                console.error('Player container (#movie-player-container) not found in HTML. Check index.html');
+            }
 
         } else {
-            console.error(`Movie with ID ${movieId} not found.`);
+            console.error(`Movie with ID ${movieId} not found in movies.js.`);
             alert('Sorry, the selected movie could not be found.');
         }
     }
 
-    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
+    // *** MODIFIED closeVideoModal for Dailymotion API control ***
     function closeVideoModal() {
-        if (videoModal && moviePlayer) {
+        if (videoModal) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
 
-            // Clear the iframe's src to stop the video and prevent background audio
-            moviePlayer.src = '';
+            // Destroy the Dailymotion player instance
+            if (dailymotionPlayerInstance) {
+                dailymotionPlayerInstance.destroy();
+                dailymotionPlayerInstance = null; // Clear the reference
+            }
+            
+            // Clear the innerHTML of the player container to remove the old iframe
+            const playerContainer = document.getElementById('movie-player-container');
+            if (playerContainer) {
+                playerContainer.innerHTML = '';
+            }
 
             modalMovieTitle.textContent = '';
         }
@@ -134,6 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButtonsContainer.appendChild(themeButton);
         });
 
+        // Your index.html has theme-buttons-wrapper with 'hidden' class initially
+        // Ensure JavaScript handles its visibility correctly.
+        // The current script manages 'visible' class and display property.
+        // It's good practice for the 'hidden' class to also set display: none; in CSS.
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
                 if (themeButtonsWrapper.classList.contains('visible')) {
@@ -143,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 500);
                 } else {
                     themeButtonsWrapper.style.display = 'block';
-                    void themeButtonsWrapper.offsetWidth;
+                    // Force reflow to ensure CSS transitions apply
+                    void themeButtonsWrapper.offsetWidth; 
                     themeButtonsWrapper.classList.add('visible');
                     themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
@@ -219,3 +277,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
+                        

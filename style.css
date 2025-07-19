@@ -83,12 +83,11 @@ nav ul {
     max-width: 400px;
 }
 
-/* New: Wrapper for search input and suggestions */
+/* START OF NEW CODE: Styles for search wrapper and suggestions */
 .search-wrapper {
     position: relative; /* Essential for positioning the suggestions div */
     flex-grow: 1; /* Allows it to take available space */
     max-width: calc(100% - 70px); /* Adjust based on your button width if it's right next to it */
-    /* If the button is below the input on small screens, adjust max-width or flex-grow as needed */
 }
 
 #search-input {
@@ -112,7 +111,6 @@ nav ul {
     box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.3);
 }
 
-/* NEW: Styles for the search suggestions container */
 #search-suggestions {
     position: absolute;
     top: 100%; /* Position right below the search input */
@@ -145,6 +143,7 @@ nav ul {
     background-color: #4a4a4a; /* Slightly lighter on hover/focus */
     color: #fff;
 }
+/* END OF NEW CODE: Styles for search wrapper and suggestions */
 
 
 /* General Button Styling */
@@ -428,7 +427,7 @@ footer {
         width: 100%;
         max-width: none;
     }
-    /* Adjust search-wrapper for small screens */
+    /* Responsive for search-wrapper */
     .search-wrapper {
         width: 100%;
         max-width: none; /* Allow it to take full width */

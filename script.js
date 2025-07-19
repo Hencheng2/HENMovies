@@ -88,15 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // movie.video must now be the TikTok VIDEO ID only (e.g., '7525859123427085575')
             const tiktokVideoId = movie.video; 
-            // The 'cite' URL in the blockquote is often the direct video page URL
-            const tiktokCiteUrl = `https://www.tiktok.com/@k.i.y.a..drama/video/${tiktokVideoId}`; // Using a generic user for now
+            // The 'cite' URL is a link back to the full video page
+            const tiktokCiteUrl = `https://www.tiktok.com/video/${tiktokVideoId}`;
 
             const tiktokEmbedHtml = `
                 <blockquote class="tiktok-embed" cite="${tiktokCiteUrl}" data-video-id="${tiktokVideoId}" data-embed-from="embed_page" style="max-width:605px; min-width:325px;">
                     <section>
-                        <a target="_blank" title="@k.i.y.a..drama" href="${tiktokCiteUrl}">@k.i.y.a..drama</a> 
-                        <p></p>
-                        <a target="_blank" title="♬ Original sound" href="${tiktokCiteUrl}">♬ Original sound</a>
+                        <a target="_blank" href="${tiktokCiteUrl}">Watch this video on TikTok</a>
                     </section>
                 </blockquote>
             `;
@@ -107,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Crucial step: Tell TikTok's embed.js to process the new blockquote.
             // This function is typically exposed globally by the embed.js script.
-            // We'll try the common re-initialization methods.
             if (window.tiktok && window.tiktok.embed && typeof window.tiktok.embed.init === 'function') {
                 window.tiktok.embed.init();
                 console.log('*** DEBUG: TikTok embed.js init() called.');
@@ -116,8 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  console.log('*** DEBUG: TikTok embed.js loadAll() called.');
             } else {
                 console.warn('TikTok embed.js re-initialization function not found or not ready. Video might not load properly.');
-                // An alert here would be too frequent if it's just a timing issue,
-                // but if the video doesn't load, the user will see it.
             }
 
         } else {
@@ -250,4 +245,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-    
+            

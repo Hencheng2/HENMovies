@@ -1,11 +1,12 @@
 // script.js
-
-// Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
+console.log('--- Script.js is definitely running ---'); // Basic check for file loading
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
         console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
+        // Don't alert here as it might be too intrusive if it's a minor timing issue,
+        // but the console error is important for debugging.
         return;
     }
 
@@ -14,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
+    // Get the new search suggestions container
+    const searchSuggestions = document.getElementById('search-suggestions'); 
     const featuredSectionTitle = document.querySelector('.featured-movies h2');
     const themeDropdownToggle = document.getElementById('theme-dropdown-toggle');
     const themeButtonsWrapper = document.getElementById('theme-buttons-wrapper');
@@ -21,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    // Now we get a direct reference to the iframe element, no YouTube API object needed
     const moviePlayer = document.getElementById('movie-player'); 
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
@@ -45,7 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderMovies(moviesToRender, containerElement) {
-        if (!containerElement) return;
+        if (!containerElement) {
+            console.error('Error: Target container for rendering movies not found.');
+            return;
+        }
         containerElement.innerHTML = '';
         if (moviesToRender.length === 0) {
             containerElement.innerHTML = '<p class="no-results-message">No movies found matching your criteria.</p>';
@@ -66,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
     function handleWatchNowClick(event) {
         if (!videoModal || !moviePlayer || !modalMovieTitle) {
             console.error('Video modal elements are missing from the DOM.');
@@ -79,11 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
-            // And add autoplay parameter
-            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
-
-            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
+            // Set the iframe's src directly with the Dailymotion embed URL
+            // Ensure movie.video contains the full Dailymotion embed URL like 'https://www.dailymotion.com/embed/video/YOUR_ID?autoplay=1'
+            moviePlayer.src = movie.video; 
 
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
@@ -94,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
     function closeVideoModal() {
         if (videoModal && moviePlayer) {
             videoModal.style.display = 'none';
@@ -143,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 500);
                 } else {
                     themeButtonsWrapper.style.display = 'block';
-                    void themeButtonsWrapper.offsetWidth;
+                    void themeButtonsWrapper.offsetWidth; // Trigger reflow to apply display:block before adding 'visible'
                     themeButtonsWrapper.classList.add('visible');
                     themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
@@ -152,6 +153,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const initialFeaturedMovies = movies.slice(0, 6);
         renderMovies(initialFeaturedMovies, featuredMoviesGrid);
+
+        // --- Live Search / Autocomplete Logic ---
+        if (searchInput && searchSuggestions) {
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                searchSuggestions.innerHTML = ''; // Clear previous suggestions
+
+                if (searchTerm.length > 0) {
+                    const matchingMovies = movies.filter(movie =>
+                        movie.name.toLowerCase().includes(searchTerm)
+                    );
+
+                    // Sort suggestions alphabetically by name
+                    matchingMovies.sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Display up to 10 suggestions
+                    matchingMovies.slice(0, 10).forEach(movie => {
+                        const suggestionDiv = document.createElement('div');
+                        suggestionDiv.textContent = movie.name;
+                        suggestionDiv.classList.add('search-suggestion-item'); // Add a class for styling
+                        
+                        // When a suggestion is clicked, fill the search input and hide suggestions
+                        suggestionDiv.addEventListener('click', () => {
+                            searchInput.value = movie.name;
+                            searchSuggestions.innerHTML = ''; // Clear suggestions
+                            searchSuggestions.style.display = 'none'; // Hide the container
+                            applySearchFilter(movie.name); // Optionally trigger search immediately
+                        });
+                        searchSuggestions.appendChild(suggestionDiv);
+                    });
+
+                    if (matchingMovies.length > 0) {
+                        searchSuggestions.style.display = 'block'; // Show the suggestion box
+                    } else {
+                        searchSuggestions.style.display = 'none'; // Hide if no matches
+                    }
+                } else {
+                    searchSuggestions.style.display = 'none'; // Hide if search input is empty
+                }
+            });
+
+            // Hide suggestions when search input loses focus (with a slight delay)
+            // The delay allows clicks on suggestions to register before the box hides
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    searchSuggestions.style.display = 'none';
+                }, 150); 
+            });
+
+            // Show suggestions again if user focuses and there's text
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.length > 0 && searchSuggestions.children.length > 0) {
+                    searchSuggestions.style.display = 'block';
+                }
+            });
+        }
+
 
         const applySearchFilter = (searchTerm) => {
             const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
@@ -172,6 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             renderMovies(filteredMovies, featuredMoviesGrid);
+            // Hide suggestions after a manual search
+            searchSuggestions.style.display = 'none'; 
         };
 
         if (searchButton && searchInput) {
@@ -219,3 +279,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
+            

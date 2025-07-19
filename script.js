@@ -1,11 +1,11 @@
 // script.js
-console.log('--- Script.js is definitely running ---'); // Basic check for file loading
+
+// Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
-        console.error('Error: movies.js not loaded or data is missing.');
-        alert('Critical Error: Movie data not loaded. Please contact site admin.');
+        console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
         return;
     }
 
@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    // Reference to the container div for TikTok embeds
-    const tiktokPlayerContainer = document.getElementById('tiktok-player-container'); 
+    // Now we get a direct reference to the iframe element, no YouTube API object needed
+    const moviePlayer = document.getElementById('movie-player'); 
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
 
@@ -45,10 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderMovies(moviesToRender, containerElement) {
-        if (!containerElement) {
-            console.error('Error: Target container for rendering movies not found.');
-            return;
-        }
+        if (!containerElement) return;
         containerElement.innerHTML = '';
         if (moviesToRender.length === 0) {
             containerElement.innerHTML = '<p class="no-results-message">No movies found matching your criteria.</p>';
@@ -69,11 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** MODIFIED handleWatchNowClick for TikTok Blockquote Embed ***
+    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
     function handleWatchNowClick(event) {
-        if (!videoModal || !tiktokPlayerContainer || !modalMovieTitle) {
-            console.error('Video modal elements or TikTok player container are missing from the DOM.');
-            alert('Error: Missing modal components. Please contact site admin.');
+        if (!videoModal || !moviePlayer || !modalMovieTitle) {
+            console.error('Video modal elements are missing from the DOM.');
             return;
         }
 
@@ -83,37 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Clear any previous content in the container
-            tiktokPlayerContainer.innerHTML = ''; 
+            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
+            // And add autoplay parameter
+            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
 
-            // movie.video must now be the TikTok VIDEO ID only (e.g., '7525859123427085575')
-            const tiktokVideoId = movie.video; 
-            // The 'cite' URL is a link back to the full video page
-            const tiktokCiteUrl = `https://www.tiktok.com/video/${tiktokVideoId}`;
-
-            const tiktokEmbedHtml = `
-                <blockquote class="tiktok-embed" cite="${tiktokCiteUrl}" data-video-id="${tiktokVideoId}" data-embed-from="embed_page" style="max-width:605px; min-width:325px;">
-                    <section>
-                        <a target="_blank" href="${tiktokCiteUrl}">Watch this video on TikTok</a>
-                    </section>
-                </blockquote>
-            `;
-            tiktokPlayerContainer.innerHTML = tiktokEmbedHtml;
+            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
 
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
-
-            // Crucial step: Tell TikTok's embed.js to process the new blockquote.
-            // This function is typically exposed globally by the embed.js script.
-            if (window.tiktok && window.tiktok.embed && typeof window.tiktok.embed.init === 'function') {
-                window.tiktok.embed.init();
-                console.log('*** DEBUG: TikTok embed.js init() called.');
-            } else if (window.tiktok && window.tiktok.embed && typeof window.tiktok.embed.loadAll === 'function') {
-                 window.tiktok.embed.loadAll(); // Alternative for re-rendering
-                 console.log('*** DEBUG: TikTok embed.js loadAll() called.');
-            } else {
-                console.warn('TikTok embed.js re-initialization function not found or not ready. Video might not load properly.');
-            }
 
         } else {
             console.error(`Movie with ID ${movieId} not found.`);
@@ -121,14 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // *** MODIFIED closeVideoModal for TikTok Blockquote Embed ***
+    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
     function closeVideoModal() {
-        if (videoModal && tiktokPlayerContainer) {
+        if (videoModal && moviePlayer) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
 
-            // Clear the container's HTML to remove the TikTok player
-            tiktokPlayerContainer.innerHTML = ''; 
+            // Clear the iframe's src to stop the video and prevent background audio
+            moviePlayer.src = '';
+
             modalMovieTitle.textContent = '';
         }
     }
@@ -151,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic ---
-    // (This part remains the same as previous versions)
     if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
@@ -163,15 +136,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
-                if (themeButtonsWrapper.classList.contains('hidden')) {
-                    themeButtonsWrapper.classList.remove('hidden');
-                    setTimeout(() => themeButtonsWrapper.classList.add('visible'), 10); 
-                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
+                if (themeButtonsWrapper.classList.contains('visible')) {
                     themeButtonsWrapper.classList.remove('visible');
                     setTimeout(() => {
-                        themeButtonsWrapper.classList.add('hidden');
-                    }, 500); 
+                        themeButtonsWrapper.style.display = 'none';
+                    }, 500);
+                } else {
+                    themeButtonsWrapper.style.display = 'block';
+                    void themeButtonsWrapper.offsetWidth;
+                    themeButtonsWrapper.classList.add('visible');
+                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
@@ -245,4 +219,3 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-            

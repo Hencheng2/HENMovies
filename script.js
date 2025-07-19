@@ -1,11 +1,11 @@
 // script.js
-
-// Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
+console.log('--- Script.js is definitely running ---'); // Basic check for file loading
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
-        console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
+        console.error('Error: movies.js not loaded or data is missing.');
+        alert('Critical Error: Movie data not loaded. Please contact site admin.');
         return;
     }
 
@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    // Now we get a direct reference to the iframe element, no YouTube API object needed
-    const moviePlayer = document.getElementById('movie-player'); 
+    // Reference to the container div for TikTok embeds
+    const tiktokPlayerContainer = document.getElementById('tiktok-player-container'); 
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
 
@@ -45,7 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderMovies(moviesToRender, containerElement) {
-        if (!containerElement) return;
+        if (!containerElement) {
+            console.error('Error: Target container for rendering movies not found.');
+            return;
+        }
         containerElement.innerHTML = '';
         if (moviesToRender.length === 0) {
             containerElement.innerHTML = '<p class="no-results-message">No movies found matching your criteria.</p>';
@@ -66,10 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
+    // *** MODIFIED handleWatchNowClick for TikTok Blockquote Embed ***
     function handleWatchNowClick(event) {
-        if (!videoModal || !moviePlayer || !modalMovieTitle) {
-            console.error('Video modal elements are missing from the DOM.');
+        if (!videoModal || !tiktokPlayerContainer || !modalMovieTitle) {
+            console.error('Video modal elements or TikTok player container are missing from the DOM.');
+            alert('Error: Missing modal components. Please contact site admin.');
             return;
         }
 
@@ -79,14 +83,42 @@ document.addEventListener('DOMContentLoaded', () => {
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
-            // And add autoplay parameter
-            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
+            // Clear any previous content in the container
+            tiktokPlayerContainer.innerHTML = ''; 
 
-            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
+            // movie.video must now be the TikTok VIDEO ID only (e.g., '7525859123427085575')
+            const tiktokVideoId = movie.video; 
+            // The 'cite' URL in the blockquote is often the direct video page URL
+            const tiktokCiteUrl = `https://www.tiktok.com/@k.i.y.a..drama/video/${tiktokVideoId}`; // Using a generic user for now
+
+            const tiktokEmbedHtml = `
+                <blockquote class="tiktok-embed" cite="${tiktokCiteUrl}" data-video-id="${tiktokVideoId}" data-embed-from="embed_page" style="max-width:605px; min-width:325px;">
+                    <section>
+                        <a target="_blank" title="@k.i.y.a..drama" href="${tiktokCiteUrl}">@k.i.y.a..drama</a> 
+                        <p></p>
+                        <a target="_blank" title="♬ Original sound" href="${tiktokCiteUrl}">♬ Original sound</a>
+                    </section>
+                </blockquote>
+            `;
+            tiktokPlayerContainer.innerHTML = tiktokEmbedHtml;
 
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
+
+            // Crucial step: Tell TikTok's embed.js to process the new blockquote.
+            // This function is typically exposed globally by the embed.js script.
+            // We'll try the common re-initialization methods.
+            if (window.tiktok && window.tiktok.embed && typeof window.tiktok.embed.init === 'function') {
+                window.tiktok.embed.init();
+                console.log('*** DEBUG: TikTok embed.js init() called.');
+            } else if (window.tiktok && window.tiktok.embed && typeof window.tiktok.embed.loadAll === 'function') {
+                 window.tiktok.embed.loadAll(); // Alternative for re-rendering
+                 console.log('*** DEBUG: TikTok embed.js loadAll() called.');
+            } else {
+                console.warn('TikTok embed.js re-initialization function not found or not ready. Video might not load properly.');
+                // An alert here would be too frequent if it's just a timing issue,
+                // but if the video doesn't load, the user will see it.
+            }
 
         } else {
             console.error(`Movie with ID ${movieId} not found.`);
@@ -94,15 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
+    // *** MODIFIED closeVideoModal for TikTok Blockquote Embed ***
     function closeVideoModal() {
-        if (videoModal && moviePlayer) {
+        if (videoModal && tiktokPlayerContainer) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
 
-            // Clear the iframe's src to stop the video and prevent background audio
-            moviePlayer.src = '';
-
+            // Clear the container's HTML to remove the TikTok player
+            tiktokPlayerContainer.innerHTML = ''; 
             modalMovieTitle.textContent = '';
         }
     }
@@ -125,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic ---
+    // (This part remains the same as previous versions)
     if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
@@ -136,16 +168,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
-                if (themeButtonsWrapper.classList.contains('visible')) {
+                if (themeButtonsWrapper.classList.contains('hidden')) {
+                    themeButtonsWrapper.classList.remove('hidden');
+                    setTimeout(() => themeButtonsWrapper.classList.add('visible'), 10); 
+                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
                     themeButtonsWrapper.classList.remove('visible');
                     setTimeout(() => {
-                        themeButtonsWrapper.style.display = 'none';
-                    }, 500);
-                } else {
-                    themeButtonsWrapper.style.display = 'block';
-                    void themeButtonsWrapper.offsetWidth;
-                    themeButtonsWrapper.classList.add('visible');
-                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        themeButtonsWrapper.classList.add('hidden');
+                    }, 500); 
                 }
             });
         }
@@ -219,3 +250,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
+    

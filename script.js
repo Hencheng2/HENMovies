@@ -1,4 +1,10 @@
 // script.js
+// script.js
+console.log('--- Script.js is definitely running ---'); // ADD THIS LINE
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ... rest of your script.js code ...
+});
 
 // Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
 

@@ -1,13 +1,12 @@
 // script.js
-console.log('--- Script.js is definitely running ---'); // This should appear in your console if the file is loading.
+
+// Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
         console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
-        // Display an alert if movies.js isn't loaded, as you cannot check console
-        alert('Critical Error: Movie data not loaded. Please contact site admin.');
-        return; // Stop script execution if core data is missing
+        return;
     }
 
     const body = document.body;
@@ -22,10 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeMoviesGrid = document.getElementById('theme-movies-grid');
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
+    // Now we get a direct reference to the iframe element, no YouTube API object needed
+    const moviePlayer = document.getElementById('movie-player'); 
     const modalMovieTitle = document.getElementById('modal-movie-title');
 
-    // To store the Dailymotion player object instance
-    let dailymotionPlayerInstance; 
 
     // --- 2. Helper Functions ---
     function createMovieCard(movie) {
@@ -46,11 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderMovies(moviesToRender, containerElement) {
-        if (!containerElement) {
-            console.error('Error: Target container for rendering movies not found.');
-            return;
-        }
-        containerElement.innerHTML = ''; // Clear previous content
+        if (!containerElement) return;
+        containerElement.innerHTML = '';
         if (moviesToRender.length === 0) {
             containerElement.innerHTML = '<p class="no-results-message">No movies found matching your criteria.</p>';
             return;
@@ -59,119 +55,55 @@ document.addEventListener('DOMContentLoaded', () => {
             const movieCard = createMovieCard(movie);
             containerElement.appendChild(movieCard);
         });
-        attachWatchNowListeners(); // Attach listeners after movies are rendered
+        attachWatchNowListeners();
     }
 
     function attachWatchNowListeners() {
-        console.log('*** DEBUG: Attempting to attach Watch Now listeners...');
         const watchNowButtons = document.querySelectorAll('.watch-now-button');
-        console.log(`*** DEBUG: Found ${watchNowButtons.length} Watch Now buttons.`);
-        
-        if (watchNowButtons.length === 0) {
-            console.warn('*** DEBUG: No .watch-now-button elements found. This might mean movie cards did not render or had incorrect class.');
-        }
-
         watchNowButtons.forEach(button => {
-            // Remove existing listener to prevent duplicates if renderMovies is called multiple times
             button.removeEventListener('click', handleWatchNowClick);
-            // Add the new listener
             button.addEventListener('click', handleWatchNowClick);
-            console.log(`*** DEBUG: Listener attached to button for movie ID: ${button.dataset.movieId}`);
         });
-        console.log('*** DEBUG: Finished attaching Watch Now listeners.');
     }
 
-    // *** MODIFIED handleWatchNowClick for Dailymotion API control and ended event ***
+    // *** MODIFIED handleWatchNowClick for Dailymotion embedding with new URL structure ***
     function handleWatchNowClick(event) {
-        console.log('*** DEBUG: Watch Now button clicked! Event target:', event.target);
-        if (!videoModal || !modalMovieTitle) { 
-            console.error('Video modal elements are missing from the DOM (videoModal or modalMovieTitle).');
-            alert('Error: Missing modal components. Please contact site admin.'); // Alert for user
+        if (!videoModal || !moviePlayer || !modalMovieTitle) {
+            console.error('Video modal elements are missing from the DOM.');
             return;
         }
 
         const movieId = event.target.dataset.movieId;
         const movie = movies.find(m => m.id === movieId);
-        console.log(`*** DEBUG: Movie ID clicked: ${movieId}, Found movie:`, movie);
 
         if (movie) {
             modalMovieTitle.textContent = movie.name;
 
-            const playerContainer = document.getElementById('movie-player-container');
-            
-            if (playerContainer) {
-                // Clear any existing content (old iframe or player from previous open)
-                playerContainer.innerHTML = ''; 
+            // Construct the Dailymotion embed URL with the new geo.dailymotion.com structure
+            // And add autoplay parameter
+            const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
 
-                // Create the specific div that Dailymotion API will target
-                const playerTargetDiv = document.createElement('div');
-                playerTargetDiv.id = 'dailymotion-api-player'; // Give it a unique ID for the API
-                playerContainer.appendChild(playerTargetDiv);
+            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
 
-                // --- IMPORTANT NEW CHECK: Ensure Dailymotion API is ready ---
-                if (typeof DM !== 'undefined' && typeof DM.player === 'function') {
-                    dailymotionPlayerInstance = DM.player(playerTargetDiv, {
-                        video: movie.video, // This is your Dailymotion video ID from movies.js
-                        width: '100%',
-                        height: '450', // You can adjust this height
-                        params: {
-                            autoplay: true,
-                            mute: false, // Set to true if you want to auto-mute on load
-                            endscreen: false, // To prevent playing next related video
-                            controls: true, // Ensure controls are visible
-                            'ui-highlight': '8a2be2' // Optional: Change highlight color (e.g., your violet)
-                        },
-                    });
-
-                    // Listen for the 'ended' event
-                    dailymotionPlayerInstance.on('ended', function() {
-                        console.log('Video ended, closing modal...');
-                        closeVideoModal();
-                    });
-
-                    videoModal.style.display = 'flex';
-                    body.style.overflow = 'hidden';
-                    console.log('*** DEBUG: Dailymotion player initialized and modal shown.');
-
-                } else {
-                    console.error('Dailymotion Player API (DM.player) is not loaded or not ready. Check network/script tag.');
-                    // Alert user if API isn't ready
-                    alert('Could not load video player. Please check your internet connection and try again.');
-                    closeVideoModal(); // Close modal if player can't load to avoid blank screen
-                }
-
-            } else {
-                console.error('Player container (#movie-player-container) not found in HTML. Check index.html structure.');
-                alert('An error occurred: Player element missing. Please contact site admin.');
-            }
+            videoModal.style.display = 'flex';
+            body.style.overflow = 'hidden';
 
         } else {
-            console.error(`Movie with ID ${movieId} not found in movies.js.`);
+            console.error(`Movie with ID ${movieId} not found.`);
             alert('Sorry, the selected movie could not be found.');
         }
     }
 
-    // *** MODIFIED closeVideoModal for Dailymotion API control ***
+    // *** MODIFIED closeVideoModal for Dailymotion embedding ***
     function closeVideoModal() {
-        if (videoModal) {
+        if (videoModal && moviePlayer) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
 
-            // Destroy the Dailymotion player instance to stop playback and free resources
-            if (dailymotionPlayerInstance) {
-                dailymotionPlayerInstance.destroy();
-                dailymotionPlayerInstance = null; // Clear the reference
-                console.log('*** DEBUG: Dailymotion player destroyed.');
-            }
-            
-            // Clear the innerHTML of the player container to ensure the old iframe/player is gone
-            const playerContainer = document.getElementById('movie-player-container');
-            if (playerContainer) {
-                playerContainer.innerHTML = '';
-            }
+            // Clear the iframe's src to stop the video and prevent background audio
+            moviePlayer.src = '';
 
             modalMovieTitle.textContent = '';
-            console.log('*** DEBUG: Video modal closed.');
         }
     }
 
@@ -179,14 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
         closeVideoModalBtn.addEventListener('click', closeVideoModal);
     }
     if (videoModal) {
-        // Close modal if clicking outside the content area
         videoModal.addEventListener('click', (event) => {
             if (event.target === videoModal) {
                 closeVideoModal();
             }
         });
     }
-    // Close modal with Escape key
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && videoModal && videoModal.style.display === 'flex') {
             closeVideoModal();
@@ -206,19 +136,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
-                // Toggle the 'hidden' class to show/hide the wrapper
-                // Assuming 'hidden' class sets display: none; in CSS
-                if (themeButtonsWrapper.classList.contains('hidden')) {
-                    themeButtonsWrapper.classList.remove('hidden');
-                    // Add 'visible' for transitions if you have them
-                    setTimeout(() => themeButtonsWrapper.classList.add('visible'), 10); 
-                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else {
+                if (themeButtonsWrapper.classList.contains('visible')) {
                     themeButtonsWrapper.classList.remove('visible');
-                    // Give time for transition before hiding completely
                     setTimeout(() => {
-                        themeButtonsWrapper.classList.add('hidden');
-                    }, 500); 
+                        themeButtonsWrapper.style.display = 'none';
+                    }, 500);
+                } else {
+                    themeButtonsWrapper.style.display = 'block';
+                    void themeButtonsWrapper.offsetWidth;
+                    themeButtonsWrapper.classList.add('visible');
+                    themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
@@ -292,4 +219,3 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-                        

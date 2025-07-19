@@ -22,6 +22,17 @@ const movies = [
         // IMPORTANT: Replace 'xUNIQUEID_FOR_CATS' with your actual Dailymotion Video ID
         video: 'xUNIQUEID_FOR_CATS' // Example Dailymotion ID
     },
+
+    {
+        id: 'henrys-tiktok-video', // Give it a unique ID
+        name: 'Henry\'s BeautyTok Video', // A name for your movie
+        image: 'lucky.jpg', // Replace with a path to an image for this video
+        theme: 'TikTok', // Or a relevant theme
+        length: '0 min 30 sec', // Estimate the video length
+        type: 'Short Clip',
+        year: 2024, // Year of the video
+        video: '7515310667314777400' // <--- THIS IS THE TIKTOK VIDEO ID
+    },
     // Add more movie objects here following the same structure.
     // Make sure 'id' is unique, 'name' is correct, 'image' points to your image,
     // and 'video' contains ONLY the Dailymotion Video ID.

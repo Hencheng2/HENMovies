@@ -207,7 +207,7 @@ main {
     margin: 25px auto;
 }
 
-/* START OF NEW CODE: Category Buttons Styling */
+/* Category Buttons Styling */
 .category-selection {
     padding: 20px 30px;
     margin-bottom: 35px; /* Spacing below this section */
@@ -218,7 +218,6 @@ main {
 
 .category-buttons-container {
     display: grid;
-    /* Responsive grid: auto-fit creates as many columns as possible, minmax sets min/max width for each */
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px; /* Spacing between buttons */
     max-width: 800px; /* Max width for the button container */
@@ -226,13 +225,10 @@ main {
     justify-content: center; /* Centers items horizontally if they don't fill the grid */
 }
 
-/* Optional: Specific styling for category buttons if different from general violet-button */
 .category-button {
     padding: 12px 25px; /* Slightly larger padding */
     font-size: 1.1em;
 }
-/* END OF NEW CODE */
-
 
 section {
     background-color: var(--card-background);
@@ -251,6 +247,7 @@ h2 {
     letter-spacing: 0.5px;
 }
 
+/* IMPORTANT: Ensure these styles are present for the "Explore by Theme" dropdown toggle */
 /* Style for the "Explore by Theme" dropdown toggle button */
 .theme-toggle-button {
     display: block;
@@ -297,7 +294,6 @@ h2 {
     opacity: 1; /* Make it fully visible */
 }
 
-
 /* Theme Selection - UPDATED FOR 2-COLUMN LAYOUT within the wrapper */
 .theme-selection .theme-buttons-container {
     display: grid;
@@ -307,6 +303,8 @@ h2 {
     margin: 0 auto; /* Center within its wrapper */
     padding: 10px 0; /* Keep your padding */
 }
+/* End of Theme section relevant to the toggle */
+
 
 /* Movie Grids */
 .movie-grid {
@@ -584,4 +582,4 @@ footer {
         padding: 10px 20px;
     }
     }
-    
+        

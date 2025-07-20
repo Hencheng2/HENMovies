@@ -1,7 +1,5 @@
 // script.js
 
-// Removed: let youtubePlayer; and all onYouTubeIframeAPIReady, onPlayerReady, onPlayerStateChange functions
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
@@ -126,15 +124,17 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButtonsContainer.appendChild(themeButton);
         });
 
+        // This is the "Explore by Theme" button toggle logic
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
                 if (themeButtonsWrapper.classList.contains('visible')) {
                     themeButtonsWrapper.classList.remove('visible');
                     setTimeout(() => {
                         themeButtonsWrapper.style.display = 'none';
-                    }, 500);
+                    }, 500); // Give time for transition
                 } else {
                     themeButtonsWrapper.style.display = 'block';
+                    // Force a reflow to ensure the 'display' change takes effect before 'max-height' transition
                     void themeButtonsWrapper.offsetWidth;
                     themeButtonsWrapper.classList.add('visible');
                     themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -142,30 +142,34 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // --- NEW LOGIC FOR INITIAL HOME PAGE RENDERING (INCLUDING CATEGORY & SEARCH FILTERS) ---
+        // Logic for initial home page rendering (including category & search filters)
         const urlParams = new URLSearchParams(window.location.search);
         const initialSearchQuery = urlParams.get('search');
         const initialCategoryFilter = urlParams.get('type'); // Get 'type' parameter for category buttons
+
+        // Debugging logs (you can remove these after confirming it works)
+        console.log('*** Debugging Category Filter ***');
+        console.log('URL Parameter (type):', initialCategoryFilter);
 
         let moviesToRenderOnHome = [];
         let homePageTitle = 'Featured Movies';
 
         if (initialCategoryFilter) {
-            // If a category filter is present (e.g., ?type=Movie)
             homePageTitle = `${initialCategoryFilter} Videos`;
-            moviesToRenderOnHome = movies.filter(movie =>
-                movie.type && movie.type.toLowerCase() === initialCategoryFilter.toLowerCase()
-            );
+            moviesToRenderOnHome = movies.filter(movie => {
+                const isMatch = movie.type && movie.type.toLowerCase() === initialCategoryFilter.toLowerCase();
+                console.log(`Checking movie: ${movie.name}, Type: ${movie.type}, Match: ${isMatch}`);
+                return isMatch;
+            });
+            console.log('Filtered movies count:', moviesToRenderOnHome.length);
         } else if (initialSearchQuery) {
-            // If a search query is present
             homePageTitle = `Search Results for "${initialSearchQuery}"`;
             moviesToRenderOnHome = movies.filter(movie =>
                 movie.name.toLowerCase().includes(initialSearchQuery.toLowerCase()) ||
                 movie.theme.toLowerCase().includes(initialSearchQuery.toLowerCase()) ||
-                (movie.type && movie.type.toLowerCase().includes(initialSearchQuery.toLowerCase())) || // Include type in search
+                (movie.type && movie.type.toLowerCase().includes(initialSearchQuery.toLowerCase())) ||
                 String(movie.year).includes(initialSearchQuery)
             );
-            // Set search input value if search query is present on load
             searchInput.value = initialSearchQuery;
         } else {
             // Default display for homepage if no specific category or search filter
@@ -173,13 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (featuredSectionTitle) {
-            featuredSectionTitle.textContent = homePageTitle; // Update the main heading
+            featuredSectionTitle.textContent = homePageTitle;
         }
-        renderMovies(moviesToRenderOnHome, featuredMoviesGrid); // Render the appropriate movies
+        renderMovies(moviesToRenderOnHome, featuredMoviesGrid);
 
-        // --- END NEW LOGIC ---
 
-        // Live Search / Autocomplete Logic (remains the same)
+        // Live Search / Autocomplete Logic
         if (searchInput && searchSuggestions) {
             searchInput.addEventListener('input', () => {
                 const searchTerm = searchInput.value.toLowerCase().trim();
@@ -233,24 +236,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 filteredMovies = movies.filter(movie =>
                     movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
                     movie.theme.toLowerCase().includes(lowerCaseSearchTerm) ||
-                    (movie.type && movie.type.toLowerCase().includes(lowerCaseSearchTerm)) || // Include type in search filter
+                    (movie.type && movie.type.toLowerCase().includes(lowerCaseSearchTerm)) ||
                     String(movie.year).includes(lowerCaseSearchTerm)
                 );
                 if (featuredSectionTitle) {
                     featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
                 }
             } else {
-                // If search input is cleared, revert to default featured or original category view
-                // This part needs to smartly handle if we were already in a category view
                 const currentUrlParams = new URLSearchParams(window.location.search);
                 const currentCategoryFilter = currentUrlParams.get('type');
                 if (currentCategoryFilter) {
-                    featuredMoviesGrid.innerHTML = ''; // Clear current movies
-                    window.location.href = `index.html?type=${currentCategoryFilter}`; // Reload to current category
+                    window.location.href = `index.html?type=${currentCategoryFilter}`;
                     return;
                 } else {
-                    featuredMoviesGrid.innerHTML = ''; // Clear current movies
-                    window.location.href = `index.html`; // Reload to default featured if not in category
+                    window.location.href = `index.html`;
                     return;
                 }
             }
@@ -269,7 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     applySearchFilter(searchInput.value);
                 }
             });
-            // Initial search query handling is now part of the main rendering logic above
         }
     }
 
@@ -277,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themePageTitle && themeMoviesGrid) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTheme = urlParams.get('theme');
-        const searchTermFromHome = urlParams.get('search'); // This might be used if a search redirects here
+        const searchTermFromHome = urlParams.get('search');
 
         const allMovies = movies;
         let moviesToDisplay = [];
@@ -290,15 +288,14 @@ document.addEventListener('DOMContentLoaded', () => {
             moviesToDisplay = allMovies.filter(movie =>
                 movie.name.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
                 movie.theme.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
-                (movie.type && movie.type.toLowerCase().includes(searchTermFromHome.toLowerCase())) || // Include type in search
+                (movie.type && movie.type.toLowerCase().includes(searchTermFromHome.toLowerCase())) ||
                 String(movie.year).includes(searchTermFromHome)
             );
         } else {
-            // Default for theme_page if no specific theme parameter (e.g., if navigated directly)
             themePageTitle.textContent = 'All Movies';
             moviesToDisplay = allMovies;
         }
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-                                                                              
+                        

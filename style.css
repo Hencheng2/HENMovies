@@ -207,12 +207,6 @@ main {
     margin: 25px auto;
 }
 
-/* Category Selection (REMOVED from this version) */
-/* .category-selection { ... } */
-/* .category-buttons-container { ... } */
-/* .category-button { ... } */
-
-
 section {
     background-color: var(--card-background);
     padding: 30px;
@@ -476,9 +470,6 @@ footer {
         padding-top: 10px;
         padding-bottom: 10px;
     }
-    /* Category buttons (REMOVED from this version's styles) */
-    /* .category-buttons-container { ... } */
-    /* .category-button { ... } */
 
     .movie-grid {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -536,9 +527,6 @@ footer {
         font-size: 1.8em;
         margin-bottom: 20px;
     }
-    /* Category buttons (REMOVED from this version's styles) */
-    /* .category-buttons-container { ... } */
-    /* .category-button { ... } */
 
     .movie-grid {
         grid-template-columns: 1fr;
@@ -557,4 +545,5 @@ footer {
         font-size: 1.2em;
         padding: 10px 20px;
     }
-}
+    }
+    

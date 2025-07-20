@@ -224,6 +224,45 @@ h2 {
     letter-spacing: 0.5px;
 }
 
+/* Category Selection Styles */
+.category-selection {
+    text-align: center; /* Center the h2 and buttons */
+}
+
+.category-buttons-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap to the next line */
+    justify-content: center; /* Centers buttons within the container */
+    gap: 15px; /* Space between buttons */
+    margin-top: 20px;
+}
+
+.category-button {
+    background-color: var(--primary-color); /* Slightly different color for distinction */
+    color: var(--text-color);
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 1.1em;
+    font-weight: bold;
+    min-width: 120px; /* Ensure buttons have a minimum width */
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.category-button:hover {
+    background-color: var(--button-hover-color); /* Use general button hover color */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.category-button.active {
+    background-color: var(--accent-color); /* Highlight active button */
+    color: var(--dark-text-color);
+    box-shadow: 0 4px 10px rgba(255, 165, 0, 0.5);
+    transform: scale(1.02); /* Slightly enlarge active button */
+}
+
+
 /* Style for the "Explore by Theme" dropdown toggle button */
 .theme-toggle-button {
     display: block;
@@ -460,6 +499,17 @@ footer {
     section {
         padding: 20px;
     }
+    /* Category buttons responsive */
+    .category-buttons-container {
+        flex-direction: column; /* Stack buttons vertically */
+        align-items: stretch; /* Stretch to fill container width */
+        max-width: 300px; /* Limit overall width */
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .category-button {
+        width: 100%; /* Make each button fill its allowed width */
+    }
     /* Updated responsive rule for theme buttons */
     .theme-selection .theme-buttons-container { /* Ensure specificity */
         grid-template-columns: 1fr; /* On smaller screens, make it a single column */
@@ -527,7 +577,10 @@ footer {
         font-size: 1.8em;
         margin-bottom: 20px;
     }
-
+    /* Category buttons responsive for very small screens */
+    .category-buttons-container {
+        gap: 10px;
+    }
     .movie-grid {
         grid-template-columns: 1fr;
         gap: 20px;

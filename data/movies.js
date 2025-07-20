@@ -5,16 +5,6 @@ const themes = ["Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Thriller", "Ad
 
 const movies = [
     {
-        id: 'fast_x',
-        name: 'Fast X',
-        theme: 'Action',
-        length: '2h 21m',
-        type: 'Movie',
-        year: 2023,
-        image: 'movie_images/fastx.jpg',
-        video: 'x8my5j4'
-    },
-    {
         id: 'spider_man_across_the_spider_verse',
         name: 'Spider-Man: Across the Spider-Verse',
         theme: 'Animation',

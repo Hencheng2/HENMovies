@@ -1,46 +1,48 @@
 // data/movies.js
 const movies = [
     {
-       id: 'dave_and_the_kill_nod', // Must be unique and consistent
-       name: 'Dave and the Kill Nod', // This is what shows on the card
-       theme: 'Comedy', // Must exactly match a theme in your `themes` array
-       length: '30 sec', // From your Dailymotion screenshot
-       type: 'Short', // Or 'Movie' if it's considered a full movie
-       year: 2023, // From your Dailymotion screenshot
-       image: 'movie_images/dave_kill_nod.jpg', // Make sure this path is correct and the image file exists
-       video: 'k2FqgVQHYZlAZiDsv8a' // Your Dailymotion video ID
+       id: 'dave_and_the_kill_nod',
+       name: 'Dave and the Kill Nod',
+       theme: 'Comedy',
+       length: '30 sec',
+       type: 'Meme', // <-- ENSURE THIS IS 'Movie', 'Series', 'Anime', or 'Meme' as appropriate
+       year: 2023,
+       image: 'movie_images/dave_kill_nod.jpg',
+       video: 'k2FqgVQHYZlAZiDsv8a'
     },
-
     {
-        id: 'funny_cats_compilation',
-        name: 'Funny Cats Compilation',
-        theme: 'Comedy',
-        length: '15m',
-        type: 'Short',
-        year: 2022,
-        image: 'movie_images/cats.jpg',
-        // IMPORTANT: Replace 'xUNIQUEID_FOR_CATS' with your actual Dailymotion Video ID
-        video: 'xUNIQUEID_FOR_CATS' // Example Dailymotion ID
+        id: 'action_movie_title',
+        name: 'The Great Escape',
+        theme: 'Action',
+        length: '1h 45m',
+        type: 'Movie', // <-- Example of a 'Movie'
+        year: 2024,
+        image: 'movie_images/great_escape.jpg',
+        video: 'xACTIONID'
     },
-    // Add more movie objects here following the same structure.
-    // Make sure 'id' is unique, 'name' is correct, 'image' points to your image,
-    // and 'video' contains ONLY the Dailymotion Video ID.
-
-    // Example of another movie you might add:
-    // {
-    //     id: 'mystic_forest',
-    //     name: 'Mystery of the Mystic Forest',
-    //     theme: 'Fantasy',
-    //     length: '1h 55m',
-    //     type: 'Movie',
-    //     year: 2021,
-    //     image: 'movie_images/mystic_forest.jpg',
-    //     video: 'xUNIQUEID_FOR_MYSTIC_FOREST' // <--- REPLACE THIS WITH THE ACTUAL DAILYMOTION ID
-    // },
+    {
+        id: 'anime_series_ep1',
+        name: 'Dragon Ball Z - Ep 1',
+        theme: 'Action',
+        length: '24m',
+        type: 'Anime', // <-- Example of an 'Anime'
+        year: 1990,
+        image: 'movie_images/dbz_ep1.jpg',
+        video: 'xANIMEID'
+    },
+    {
+        id: 'sitcom_episode_s1e1',
+        name: 'Friends - The Pilot',
+        theme: 'Comedy',
+        length: '22m',
+        type: 'Series', // <-- Example of a 'Series'
+        year: 1994,
+        image: 'movie_images/friends_s1e1.jpg',
+        video: 'xSERIESID'
+    },
+    // ... add more movies with correct 'type' values
 ];
 
 const themes = [
-    'Action', 'Comedy', 'Drama', 'Sci-Fi', 'Fantasy', 'Horror',
-    'Adventure', 'Animation', 'Thriller', 'Romance', 'Mystery',
-    'Documentary', 'Family', 'Musical', 'Crime', 'Western', 'War'
+    // ... your existing themes
 ];

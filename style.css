@@ -207,28 +207,11 @@ main {
     margin: 25px auto;
 }
 
-/* Category Buttons Styling */
-.category-selection {
-    padding: 20px 30px;
-    margin-bottom: 35px; /* Spacing below this section */
-    background-color: var(--card-background); /* Background for this section */
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
+/* Category Selection (REMOVED from this version) */
+/* .category-selection { ... } */
+/* .category-buttons-container { ... } */
+/* .category-button { ... } */
 
-.category-buttons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px; /* Spacing between buttons */
-    max-width: 800px; /* Max width for the button container */
-    margin: 0 auto; /* Center the container */
-    justify-content: center; /* Centers items horizontally if they don't fill the grid */
-}
-
-.category-button {
-    padding: 12px 25px; /* Slightly larger padding */
-    font-size: 1.1em;
-}
 
 section {
     background-color: var(--card-background);
@@ -247,7 +230,6 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* IMPORTANT: Ensure these styles are present for the "Explore by Theme" dropdown toggle */
 /* Style for the "Explore by Theme" dropdown toggle button */
 .theme-toggle-button {
     display: block;
@@ -294,6 +276,7 @@ h2 {
     opacity: 1; /* Make it fully visible */
 }
 
+
 /* Theme Selection - UPDATED FOR 2-COLUMN LAYOUT within the wrapper */
 .theme-selection .theme-buttons-container {
     display: grid;
@@ -303,8 +286,6 @@ h2 {
     margin: 0 auto; /* Center within its wrapper */
     padding: 10px 0; /* Keep your padding */
 }
-/* End of Theme section relevant to the toggle */
-
 
 /* Movie Grids */
 .movie-grid {
@@ -495,11 +476,10 @@ footer {
         padding-top: 10px;
         padding-bottom: 10px;
     }
-    /* Responsive adjustments for category buttons */
-    .category-buttons-container {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 10px;
-    }
+    /* Category buttons (REMOVED from this version's styles) */
+    /* .category-buttons-container { ... } */
+    /* .category-button { ... } */
+
     .movie-grid {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;
@@ -556,14 +536,10 @@ footer {
         font-size: 1.8em;
         margin-bottom: 20px;
     }
-    .category-buttons-container {
-        grid-template-columns: 1fr; /* Stack vertically on very small screens */
-    }
-    .category-button {
-        width: 100%;
-        max-width: 250px; /* Constrain width for stacked buttons */
-        margin: 0 auto; /* Center individual buttons */
-    }
+    /* Category buttons (REMOVED from this version's styles) */
+    /* .category-buttons-container { ... } */
+    /* .category-button { ... } */
+
     .movie-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -581,5 +557,4 @@ footer {
         font-size: 1.2em;
         padding: 10px 20px;
     }
-    }
-        
+}

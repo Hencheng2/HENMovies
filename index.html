@@ -13,9 +13,9 @@
             <h1 class="site-title"><a href="index.html">HENmovies</a></h1>
             <nav>
                 <div class="search-bar-container">
-                    <div class="search-wrapper"> 
+                    <div class="search-wrapper">
                         <input type="search" id="search-input" placeholder="Search for movies..." aria-label="Search movies">
-                        <div id="search-suggestions"></div> 
+                        <div id="search-suggestions"></div>
                     </div>
                     <button id="search-button" class="violet-button" aria-label="Perform search">Search</button>
                 </div>
@@ -24,18 +24,26 @@
     </header>
 
     <main>
+        <section class="category-selection">
+            <div class="category-buttons-container">
+                <a href="index.html?type=Movie" class="violet-button category-button">Movies</a>
+                <a href="index.html?type=Series" class="violet-button category-button">Series</a>
+                <a href="index.html?type=Anime" class="violet-button category-button">Animes</a>
+                <a href="index.html?type=Meme" class="violet-button category-button">Memes</a>
+            </div>
+        </section>
         <section class="theme-selection">
             <button id="theme-dropdown-toggle" class="violet-button theme-toggle-button">Explore by Theme</button>
             <div id="theme-buttons-wrapper" class="theme-buttons-wrapper hidden">
                 <div class="theme-buttons-container" id="theme-buttons-container">
-                    </div>
+                </div>
             </div>
         </section>
 
         <section class="featured-movies">
             <h2>Featured Movies</h2>
             <div class="movie-grid" id="featured-movies-grid">
-                </div>
+            </div>
         </section>
     </main>
 

@@ -17,15 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const featuredSectionTitle = document.querySelector('.featured-movies h2');
     const themeDropdownToggle = document.getElementById('theme-dropdown-toggle');
     const themeButtonsWrapper = document.getElementById('theme-buttons-wrapper');
-    const themePageTitle = document.getElementById('theme-page-title');
-    const themeMoviesGrid = document.getElementById('theme-movies-grid');
+    const themePageTitle = document.getElementById('theme-page-title'); // This ID is also used on theme_page.html
+    const themeMoviesGrid = document.getElementById('theme-movies-grid'); // This ID is also used on theme_page.html
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
-    // Now we get a direct reference to the iframe element, no YouTube API object needed
-    const moviePlayer = document.getElementById('movie-player'); 
+    const moviePlayer = document.getElementById('movie-player');
     const modalMovieTitle = document.getElementById('modal-movie-title');
-    // START OF NEW CODE: Get the search suggestions container
-    const searchSuggestions = document.getElementById('search-suggestions'); 
+    const searchSuggestions = document.getElementById('search-suggestions');
 
 
     // --- 2. Helper Functions ---
@@ -68,8 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // This is the handleWatchNowClick function EXACTLY as you provided it,
-    // assuming it was perfectly working for you.
     function handleWatchNowClick(event) {
         if (!videoModal || !moviePlayer || !modalMovieTitle) {
             console.error('Video modal elements are missing from the DOM.');
@@ -81,11 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (movie) {
             modalMovieTitle.textContent = movie.name;
-
-            // This line is as you provided it. It assumes movie.video contains the full embed URL.
             const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
-
-            moviePlayer.src = dailymotionEmbedUrl; // Set the iframe's src
+            moviePlayer.src = dailymotionEmbedUrl;
 
             videoModal.style.display = 'flex';
             body.style.overflow = 'hidden';
@@ -96,15 +89,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // This is the closeVideoModal function EXACTLY as you provided it.
     function closeVideoModal() {
         if (videoModal && moviePlayer) {
             videoModal.style.display = 'none';
             body.style.overflow = '';
-
-            // Clear the iframe's src to stop the video and prevent background audio
-            moviePlayer.src = '';
-
+            moviePlayer.src = ''; // Clear the iframe's src to stop the video
             modalMovieTitle.textContent = '';
         }
     }
@@ -127,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic ---
+    // This block runs for index.html (and parts also for theme_page.html depending on element presence)
     if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
@@ -152,66 +142,89 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        const initialFeaturedMovies = movies.slice(0, 6);
-        renderMovies(initialFeaturedMovies, featuredMoviesGrid);
+        // --- NEW LOGIC FOR INITIAL HOME PAGE RENDERING (INCLUDING CATEGORY & SEARCH FILTERS) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialSearchQuery = urlParams.get('search');
+        const initialCategoryFilter = urlParams.get('type'); // Get 'type' parameter for category buttons
 
-        // START OF NEW CODE: Live Search / Autocomplete Logic
-        if (searchInput && searchSuggestions) { // Ensure elements exist
+        let moviesToRenderOnHome = [];
+        let homePageTitle = 'Featured Movies';
+
+        if (initialCategoryFilter) {
+            // If a category filter is present (e.g., ?type=Movie)
+            homePageTitle = `${initialCategoryFilter} Videos`;
+            moviesToRenderOnHome = movies.filter(movie =>
+                movie.type && movie.type.toLowerCase() === initialCategoryFilter.toLowerCase()
+            );
+        } else if (initialSearchQuery) {
+            // If a search query is present
+            homePageTitle = `Search Results for "${initialSearchQuery}"`;
+            moviesToRenderOnHome = movies.filter(movie =>
+                movie.name.toLowerCase().includes(initialSearchQuery.toLowerCase()) ||
+                movie.theme.toLowerCase().includes(initialSearchQuery.toLowerCase()) ||
+                (movie.type && movie.type.toLowerCase().includes(initialSearchQuery.toLowerCase())) || // Include type in search
+                String(movie.year).includes(initialSearchQuery)
+            );
+            // Set search input value if search query is present on load
+            searchInput.value = initialSearchQuery;
+        } else {
+            // Default display for homepage if no specific category or search filter
+            moviesToRenderOnHome = movies.slice(0, 6); // Show first 6 movies as default featured
+        }
+
+        if (featuredSectionTitle) {
+            featuredSectionTitle.textContent = homePageTitle; // Update the main heading
+        }
+        renderMovies(moviesToRenderOnHome, featuredMoviesGrid); // Render the appropriate movies
+
+        // --- END NEW LOGIC ---
+
+        // Live Search / Autocomplete Logic (remains the same)
+        if (searchInput && searchSuggestions) {
             searchInput.addEventListener('input', () => {
                 const searchTerm = searchInput.value.toLowerCase().trim();
-                searchSuggestions.innerHTML = ''; // Clear previous suggestions
+                searchSuggestions.innerHTML = '';
 
                 if (searchTerm.length > 0) {
                     const matchingMovies = movies.filter(movie =>
                         movie.name.toLowerCase().includes(searchTerm)
                     );
-
-                    // Sort suggestions alphabetically by name
                     matchingMovies.sort((a, b) => a.name.localeCompare(b.name));
-
-                    // Display up to 10 suggestions
                     matchingMovies.slice(0, 10).forEach(movie => {
                         const suggestionDiv = document.createElement('div');
                         suggestionDiv.textContent = movie.name;
-                        suggestionDiv.classList.add('search-suggestion-item'); // Add a class for styling
-                        
-                        // When a suggestion is clicked, fill the search input and hide suggestions
+                        suggestionDiv.classList.add('search-suggestion-item');
                         suggestionDiv.addEventListener('click', () => {
                             searchInput.value = movie.name;
-                            searchSuggestions.innerHTML = ''; // Clear suggestions
-                            searchSuggestions.style.display = 'none'; // Hide the container
-                            applySearchFilter(movie.name); // Optionally trigger search immediately
+                            searchSuggestions.innerHTML = '';
+                            searchSuggestions.style.display = 'none';
+                            applySearchFilter(movie.name);
                         });
                         searchSuggestions.appendChild(suggestionDiv);
                     });
 
                     if (matchingMovies.length > 0) {
-                        searchSuggestions.style.display = 'block'; // Show the suggestion box
+                        searchSuggestions.style.display = 'block';
                     } else {
-                        searchSuggestions.style.display = 'none'; // Hide if no matches
+                        searchSuggestions.style.display = 'none';
                     }
                 } else {
-                    searchSuggestions.style.display = 'none'; // Hide if search input is empty
+                    searchSuggestions.style.display = 'none';
                 }
             });
 
-            // Hide suggestions when search input loses focus (with a slight delay)
-            // The delay allows clicks on suggestions to register before the box hides
             searchInput.addEventListener('blur', () => {
                 setTimeout(() => {
                     searchSuggestions.style.display = 'none';
-                }, 150); 
+                }, 150);
             });
 
-            // Show suggestions again if user focuses and there's text
             searchInput.addEventListener('focus', () => {
                 if (searchInput.value.length > 0 && searchSuggestions.children.length > 0) {
                     searchSuggestions.style.display = 'block';
                 }
             });
         }
-        // END OF NEW CODE: Live Search / Autocomplete Logic
-
 
         const applySearchFilter = (searchTerm) => {
             const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
@@ -220,21 +233,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 filteredMovies = movies.filter(movie =>
                     movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
                     movie.theme.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    (movie.type && movie.type.toLowerCase().includes(lowerCaseSearchTerm)) || // Include type in search filter
                     String(movie.year).includes(lowerCaseSearchTerm)
                 );
                 if (featuredSectionTitle) {
                     featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
                 }
             } else {
-                filteredMovies = movies.slice(0, 6);
-                if (featuredSectionTitle) {
-                    featuredSectionTitle.textContent = 'Featured Movies';
+                // If search input is cleared, revert to default featured or original category view
+                // This part needs to smartly handle if we were already in a category view
+                const currentUrlParams = new URLSearchParams(window.location.search);
+                const currentCategoryFilter = currentUrlParams.get('type');
+                if (currentCategoryFilter) {
+                    featuredMoviesGrid.innerHTML = ''; // Clear current movies
+                    window.location.href = `index.html?type=${currentCategoryFilter}`; // Reload to current category
+                    return;
+                } else {
+                    featuredMoviesGrid.innerHTML = ''; // Clear current movies
+                    window.location.href = `index.html`; // Reload to default featured if not in category
+                    return;
                 }
             }
             renderMovies(filteredMovies, featuredMoviesGrid);
-            // Hide suggestions after a manual search (added to this function for consistency)
-            if (searchSuggestions) { // Check if element exists before trying to hide
-                searchSuggestions.style.display = 'none'; 
+            if (searchSuggestions) {
+                searchSuggestions.style.display = 'none';
             }
         };
 
@@ -247,22 +269,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     applySearchFilter(searchInput.value);
                 }
             });
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialSearchQuery = urlParams.get('search');
-            if (initialSearchQuery) {
-                searchInput.value = initialSearchQuery;
-                applySearchFilter(initialSearchQuery);
-                if (featuredMoviesGrid) {
-                    featuredMoviesGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
+            // Initial search query handling is now part of the main rendering logic above
         }
     }
 
+    // This block specifically handles the theme_page.html (and will run if on that page)
     if (themePageTitle && themeMoviesGrid) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTheme = urlParams.get('theme');
-        const searchTermFromHome = urlParams.get('search');
+        const searchTermFromHome = urlParams.get('search'); // This might be used if a search redirects here
+
         const allMovies = movies;
         let moviesToDisplay = [];
 
@@ -274,13 +290,15 @@ document.addEventListener('DOMContentLoaded', () => {
             moviesToDisplay = allMovies.filter(movie =>
                 movie.name.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
                 movie.theme.toLowerCase().includes(searchTermFromHome.toLowerCase()) ||
+                (movie.type && movie.type.toLowerCase().includes(searchTermFromHome.toLowerCase())) || // Include type in search
                 String(movie.year).includes(searchTermFromHome)
             );
         } else {
+            // Default for theme_page if no specific theme parameter (e.g., if navigated directly)
             themePageTitle.textContent = 'All Movies';
             moviesToDisplay = allMovies;
         }
         renderMovies(moviesToDisplay, themeMoviesGrid);
     }
 }); // End of DOMContentLoaded
-                
+                                                                              

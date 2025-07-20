@@ -28,7 +28,7 @@ body {
     overflow-x: hidden; /* Prevents horizontal scroll from responsive issues */
 
     /* --- BACKGROUND IMAGE PROPERTIES TO COVER THE WHOLE SCREEN --- */
-    background-image: url('../images/your_background_image.jpg'); /* REMEMBER TO REPLACE 'your_background_image.jpg' with your actual image file name and correct path */
+    background-image: url('../images/your_background_image.jpg'); /* REPLACE 'your_background_image.jpg' with your actual image file name */
     background-size: cover;       /* Ensures the image covers the entire viewport */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-position: center center; /* Centers the image */
@@ -207,12 +207,6 @@ main {
     margin: 25px auto;
 }
 
-/* Category Selection (REMOVED from this version) */
-/* .category-selection { ... } */
-/* .category-buttons-container { ... } */
-/* .category-button { ... } */
-
-
 section {
     background-color: var(--card-background);
     padding: 30px;
@@ -230,7 +224,7 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* Style for the "Explore by Theme" dropdown toggle button */
+/* Style for the new "Explore by Theme" dropdown toggle button */
 .theme-toggle-button {
     display: block;
     width: fit-content;
@@ -476,10 +470,6 @@ footer {
         padding-top: 10px;
         padding-bottom: 10px;
     }
-    /* Category buttons (REMOVED from this version's styles) */
-    /* .category-buttons-container { ... } */
-    /* .category-button { ... } */
-
     .movie-grid {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 20px;
@@ -536,10 +526,6 @@ footer {
         font-size: 1.8em;
         margin-bottom: 20px;
     }
-    /* Category buttons (REMOVED from this version's styles) */
-    /* .category-buttons-container { ... } */
-    /* .category-button { ... } */
-
     .movie-grid {
         grid-template-columns: 1fr;
         gap: 20px;

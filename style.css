@@ -1,5 +1,3 @@
-/* style.css */
-
 :root {
     --primary-color: #7A2020; /* Deep Maroonish */
     --accent-color: #FFA500; /* Amber */
@@ -21,19 +19,11 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-dark); /* Fallback color if image fails to load */
+    background-color: var(--background-dark);
     color: var(--text-color);
     line-height: 1.6;
     scroll-behavior: smooth;
     overflow-x: hidden; /* Prevents horizontal scroll from responsive issues */
-
-    /* --- BACKGROUND IMAGE PROPERTIES TO COVER THE WHOLE SCREEN --- */
-    background-image: url('../images/your_background_image.jpg'); /* REPLACE 'your_background_image.jpg' with your actual image file name */
-    background-size: cover;       /* Ensures the image covers the entire viewport */
-    background-repeat: no-repeat; /* Prevents the image from repeating */
-    background-position: center center; /* Centers the image */
-    background-attachment: fixed; /* Makes the background fixed while content scrolls */
-    /* ----------------------------------------------------------- */
 }
 
 /* Header */
@@ -93,7 +83,7 @@ nav ul {
     max-width: 400px;
 }
 
-/* Styles for search wrapper and suggestions */
+/* START OF NEW CODE: Styles for search wrapper and suggestions */
 .search-wrapper {
     position: relative; /* Essential for positioning the suggestions div */
     flex-grow: 1; /* Allows it to take available space */
@@ -153,6 +143,7 @@ nav ul {
     background-color: #4a4a4a; /* Slightly lighter on hover/focus */
     color: #fff;
 }
+/* END OF NEW CODE: Styles for search wrapper and suggestions */
 
 
 /* General Button Styling */
@@ -543,4 +534,4 @@ footer {
         font-size: 1.2em;
         padding: 10px 20px;
     }
-}
+        }

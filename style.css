@@ -27,12 +27,13 @@ body {
     scroll-behavior: smooth;
     overflow-x: hidden; /* Prevents horizontal scroll from responsive issues */
 
-    /* BACKGROUND IMAGE PROPERTIES TO COVER THE WHOLE SCREEN */
-    background-image: url('../images/your_background_image.jpg'); /* REPLACE 'your_background_image.jpg' with your actual image file name */
+    /* --- BACKGROUND IMAGE PROPERTIES TO COVER THE WHOLE SCREEN --- */
+    background-image: url('../images/your_background_image.jpg'); /* REMEMBER TO REPLACE 'your_background_image.jpg' with your actual image file name and correct path */
     background-size: cover;       /* Ensures the image covers the entire viewport */
     background-repeat: no-repeat; /* Prevents the image from repeating */
     background-position: center center; /* Centers the image */
     background-attachment: fixed; /* Makes the background fixed while content scrolls */
+    /* ----------------------------------------------------------- */
 }
 
 /* Header */
@@ -250,7 +251,7 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* Style for the new "Explore by Theme" dropdown toggle button */
+/* Style for the "Explore by Theme" dropdown toggle button */
 .theme-toggle-button {
     display: block;
     width: fit-content;
@@ -582,4 +583,5 @@ footer {
         font-size: 1.2em;
         padding: 10px 20px;
     }
-}
+    }
+    

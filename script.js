@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Basic Setup & Element Selection ---
+    // Ensure movies.js data is available
     if (typeof movies === 'undefined' || typeof themes === 'undefined') {
         console.error('Error: movies.js not loaded or data is missing. Make sure <script src="data/movies.js"></script> is placed BEFORE <script src="script.js"></script> in your HTML.');
         return;
@@ -12,11 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const featuredMoviesGrid = document.getElementById('featured-movies-grid');
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
-    const featuredSectionTitle = document.querySelector('.featured-movies h2');
+    const featuredSectionTitle = document.querySelector('.featured-movies h2'); // Used on index.html
     const themeDropdownToggle = document.getElementById('theme-dropdown-toggle');
     const themeButtonsWrapper = document.getElementById('theme-buttons-wrapper');
-    const themePageTitle = document.getElementById('theme-page-title'); // This ID is also used on theme_page.html
-    const themeMoviesGrid = document.getElementById('theme-movies-grid'); // This ID is also used on theme_page.html
+    const themePageTitle = document.getElementById('theme-page-title'); // Used on theme_page.html
+    const themeMoviesGrid = document.getElementById('theme-movies-grid'); // Used on theme_page.html
     const videoModal = document.getElementById('video-modal');
     const closeVideoModalBtn = document.getElementById('close-video-modal');
     const moviePlayer = document.getElementById('movie-player');
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderMovies(moviesToRender, containerElement) {
         if (!containerElement) return;
-        containerElement.innerHTML = '';
+        containerElement.innerHTML = ''; // Clear existing content
         if (moviesToRender.length === 0) {
             containerElement.innerHTML = '<p class="no-results-message">No movies found matching your criteria.</p>';
             return;
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function attachWatchNowListeners() {
         const watchNowButtons = document.querySelectorAll('.watch-now-button');
         watchNowButtons.forEach(button => {
+            // Remove existing listener to prevent duplicates if renderMovies is called multiple times
             button.removeEventListener('click', handleWatchNowClick);
             button.addEventListener('click', handleWatchNowClick);
         });
@@ -78,9 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const dailymotionEmbedUrl = `https://geo.dailymotion.com/player.html?video=${movie.video}&autoplay=1`;
             moviePlayer.src = dailymotionEmbedUrl;
 
-            videoModal.style.display = 'flex';
-            body.style.overflow = 'hidden';
-
+            videoModal.style.display = 'flex'; // Show modal
+            body.style.overflow = 'hidden'; // Prevent background scrolling
         } else {
             console.error(`Movie with ID ${movieId} not found.`);
             alert('Sorry, the selected movie could not be found.');
@@ -90,22 +91,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeVideoModal() {
         if (videoModal && moviePlayer) {
             videoModal.style.display = 'none';
-            body.style.overflow = '';
+            body.style.overflow = ''; // Restore background scrolling
             moviePlayer.src = ''; // Clear the iframe's src to stop the video
-            modalMovieTitle.textContent = '';
+            modalMovieTitle.textContent = ''; // Clear modal title
         }
     }
 
+    // Attach event listeners for modal close button and outside click
     if (closeVideoModalBtn) {
         closeVideoModalBtn.addEventListener('click', closeVideoModal);
     }
     if (videoModal) {
         videoModal.addEventListener('click', (event) => {
-            if (event.target === videoModal) {
+            if (event.target === videoModal) { // Close if clicked outside modal content
                 closeVideoModal();
             }
         });
     }
+    // Close modal on Escape key
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && videoModal && videoModal.style.display === 'flex') {
             closeVideoModal();
@@ -114,8 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic ---
-    // This block runs for index.html (and parts also for theme_page.html depending on element presence)
+    // This block runs if we are on index.html (has themeButtonsContainer, featuredMoviesGrid, searchInput)
     if (themeButtonsContainer && featuredMoviesGrid && searchInput) {
+
+        // Populate Theme buttons
         themes.forEach(theme => {
             const themeButton = document.createElement('a');
             themeButton.href = `theme_page.html?theme=${encodeURIComponent(theme)}`;
@@ -124,45 +129,34 @@ document.addEventListener('DOMContentLoaded', () => {
             themeButtonsContainer.appendChild(themeButton);
         });
 
-        // This is the "Explore by Theme" button toggle logic
+        // "Explore by Theme" dropdown toggle functionality
         if (themeDropdownToggle && themeButtonsWrapper) {
             themeDropdownToggle.addEventListener('click', () => {
                 if (themeButtonsWrapper.classList.contains('visible')) {
                     themeButtonsWrapper.classList.remove('visible');
+                    // Use a timeout to allow transition to complete before setting display: none
                     setTimeout(() => {
                         themeButtonsWrapper.style.display = 'none';
-                    }, 500); // Give time for transition
+                    }, 500); // Matches CSS transition duration
                 } else {
                     themeButtonsWrapper.style.display = 'block';
                     // Force a reflow to ensure the 'display' change takes effect before 'max-height' transition
-                    void themeButtonsWrapper.offsetWidth;
+                    void themeButtonsWrapper.offsetWidth; // Trigger reflow
                     themeButtonsWrapper.classList.add('visible');
+                    // Scroll to the theme section smoothly after expanding
                     themeButtonsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
 
-        // Logic for initial home page rendering (including category & search filters)
+        // Initial rendering for the home page (Featured Movies by default)
         const urlParams = new URLSearchParams(window.location.search);
-        const initialSearchQuery = urlParams.get('search');
-        const initialCategoryFilter = urlParams.get('type'); // Get 'type' parameter for category buttons
-
-        // Debugging logs (you can remove these after confirming it works)
-        console.log('*** Debugging Category Filter ***');
-        console.log('URL Parameter (type):', initialCategoryFilter);
+        const initialSearchQuery = urlParams.get('search'); // Check for search query from URL
 
         let moviesToRenderOnHome = [];
         let homePageTitle = 'Featured Movies';
 
-        if (initialCategoryFilter) {
-            homePageTitle = `${initialCategoryFilter} Videos`;
-            moviesToRenderOnHome = movies.filter(movie => {
-                const isMatch = movie.type && movie.type.toLowerCase() === initialCategoryFilter.toLowerCase();
-                console.log(`Checking movie: ${movie.name}, Type: ${movie.type}, Match: ${isMatch}`);
-                return isMatch;
-            });
-            console.log('Filtered movies count:', moviesToRenderOnHome.length);
-        } else if (initialSearchQuery) {
+        if (initialSearchQuery) {
             homePageTitle = `Search Results for "${initialSearchQuery}"`;
             moviesToRenderOnHome = movies.filter(movie =>
                 movie.name.toLowerCase().includes(initialSearchQuery.toLowerCase()) ||
@@ -170,9 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 (movie.type && movie.type.toLowerCase().includes(initialSearchQuery.toLowerCase())) ||
                 String(movie.year).includes(initialSearchQuery)
             );
-            searchInput.value = initialSearchQuery;
+            searchInput.value = initialSearchQuery; // Populate search input with query
         } else {
-            // Default display for homepage if no specific category or search filter
+            // Default display for homepage if no specific filter (like category or search)
             moviesToRenderOnHome = movies.slice(0, 6); // Show first 6 movies as default featured
         }
 
@@ -186,14 +180,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchInput && searchSuggestions) {
             searchInput.addEventListener('input', () => {
                 const searchTerm = searchInput.value.toLowerCase().trim();
-                searchSuggestions.innerHTML = '';
+                searchSuggestions.innerHTML = ''; // Clear previous suggestions
 
                 if (searchTerm.length > 0) {
                     const matchingMovies = movies.filter(movie =>
                         movie.name.toLowerCase().includes(searchTerm)
                     );
-                    matchingMovies.sort((a, b) => a.name.localeCompare(b.name));
-                    matchingMovies.slice(0, 10).forEach(movie => {
+                    matchingMovies.sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+                    matchingMovies.slice(0, 10).forEach(movie => { // Limit to 10 suggestions
                         const suggestionDiv = document.createElement('div');
                         suggestionDiv.textContent = movie.name;
                         suggestionDiv.classList.add('search-suggestion-item');
@@ -201,27 +195,29 @@ document.addEventListener('DOMContentLoaded', () => {
                             searchInput.value = movie.name;
                             searchSuggestions.innerHTML = '';
                             searchSuggestions.style.display = 'none';
-                            applySearchFilter(movie.name);
+                            applySearchFilter(movie.name); // Apply filter on click
                         });
                         searchSuggestions.appendChild(suggestionDiv);
                     });
 
                     if (matchingMovies.length > 0) {
-                        searchSuggestions.style.display = 'block';
+                        searchSuggestions.style.display = 'block'; // Show suggestions
                     } else {
-                        searchSuggestions.style.display = 'none';
+                        searchSuggestions.style.display = 'none'; // Hide if no matches
                     }
                 } else {
-                    searchSuggestions.style.display = 'none';
+                    searchSuggestions.style.display = 'none'; // Hide if search term is empty
                 }
             });
 
+            // Hide suggestions when input loses focus (with a slight delay for click events)
             searchInput.addEventListener('blur', () => {
                 setTimeout(() => {
                     searchSuggestions.style.display = 'none';
                 }, 150);
             });
 
+            // Show suggestions again on focus if input has text
             searchInput.addEventListener('focus', () => {
                 if (searchInput.value.length > 0 && searchSuggestions.children.length > 0) {
                     searchSuggestions.style.display = 'block';
@@ -229,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // Function to apply search filter (used by button and suggestion click)
         const applySearchFilter = (searchTerm) => {
             const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
             let filteredMovies;
@@ -236,29 +233,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 filteredMovies = movies.filter(movie =>
                     movie.name.toLowerCase().includes(lowerCaseSearchTerm) ||
                     movie.theme.toLowerCase().includes(lowerCaseSearchTerm) ||
-                    (movie.type && movie.type.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                    (movie.type && movie.type.toLowerCase().includes(lowerCaseSearchTerm)) || // Check type as well
                     String(movie.year).includes(lowerCaseSearchTerm)
                 );
                 if (featuredSectionTitle) {
                     featuredSectionTitle.textContent = `Search Results for "${searchTerm}"`;
                 }
             } else {
-                const currentUrlParams = new URLSearchParams(window.location.search);
-                const currentCategoryFilter = currentUrlParams.get('type');
-                if (currentCategoryFilter) {
-                    window.location.href = `index.html?type=${currentCategoryFilter}`;
-                    return;
-                } else {
-                    window.location.href = `index.html`;
-                    return;
-                }
+                // If search term is empty, navigate back to clean index.html to show default featured
+                window.location.href = `index.html`;
+                return;
             }
             renderMovies(filteredMovies, featuredMoviesGrid);
             if (searchSuggestions) {
-                searchSuggestions.style.display = 'none';
+                searchSuggestions.style.display = 'none'; // Hide suggestions after search
             }
         };
 
+        // Search button click and Enter key press
         if (searchButton && searchInput) {
             searchButton.addEventListener('click', () => {
                 applySearchFilter(searchInput.value);
@@ -275,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themePageTitle && themeMoviesGrid) {
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTheme = urlParams.get('theme');
-        const searchTermFromHome = urlParams.get('search');
+        const searchTermFromHome = urlParams.get('search'); // Allow search from home to carry over
 
         const allMovies = movies;
         let moviesToDisplay = [];
@@ -292,10 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 String(movie.year).includes(searchTermFromHome)
             );
         } else {
-            themePageTitle.textContent = 'All Movies';
+            themePageTitle.textContent = 'All Movies'; // Default if no theme or search specified
             moviesToDisplay = allMovies;
         }
-        renderMovies(moviesToDisplay, themeMoviesGrid);
+        renderMovies(moviesToDisplay, themeMoviesGrid); // Render on theme_page.html
     }
 }); // End of DOMContentLoaded
-                        
+            

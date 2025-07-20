@@ -118,8 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. Page Initialization Logic (for index.html) ---
-    // This block runs if we are on index.html (has themeButtonsContainer, featuredMoviesGrid, searchInput)
-    if (featuredMoviesGrid && searchInput) { // Removed theme containers from this check as they are now optional for initial render
+    if (featuredMoviesGrid && searchInput) {
 
         // Populate Theme buttons (if the container exists)
         if (themeButtonsContainer) {
@@ -154,22 +153,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Category Filtering Logic ---
         let currentFilter = 'All'; // Default filter
-        const initialCategoryParam = new URLSearchParams(window.location.search).get('category');
-        if (initialCategoryParam && ['Movie', 'Series', 'Anime', 'Meme', 'All'].includes(initialCategoryParam)) {
-            currentFilter = initialCategoryParam;
-        }
 
         const filterMoviesByCategory = (category) => {
             let filteredMovies;
             if (category === 'All') {
                 filteredMovies = movies;
             } else {
+                // Ensure movie.type matches the data-category exactly (case-sensitive)
                 filteredMovies = movies.filter(movie => movie.type === category);
             }
             if (featuredSectionTitle) {
-                featuredSectionTitle.textContent = `${category} Movies`;
                 if (category === 'All') {
                     featuredSectionTitle.textContent = 'All Categories';
+                } else {
+                    featuredSectionTitle.textContent = `${category} Movies`;
                 }
             }
             renderMovies(filteredMovies, featuredMoviesGrid);
@@ -221,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderMovies(moviesToRenderOnHome, featuredMoviesGrid);
         } else {
             // Default display if no specific filter or search (e.g., initial page load)
-            filterMoviesByCategory(currentFilter); // This will default to 'All'
+            filterMoviesByCategory(currentFilter); // This will default to 'All' and activate the 'All Categories' button
         }
 
 
@@ -349,4 +346,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid); // Render on theme_page.html
     }
 }); // End of DOMContentLoaded
-            
+                                         

@@ -290,4 +290,4 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMovies(moviesToDisplay, themeMoviesGrid); // Render on theme_page.html
     }
 }); // End of DOMContentLoaded
-                
+    

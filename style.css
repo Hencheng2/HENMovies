@@ -224,33 +224,35 @@ h2 {
     letter-spacing: 0.5px;
 }
 
-/* Category Selection Styles */
+/* Category Selection Styles - UPDATED FOR GRID LAYOUT */
 .category-selection {
-    text-align: center; /* Center the h2 and buttons */
+    text-align: center; /* Center the h2 */
 }
 
 .category-buttons-container {
-    display: flex;
-    flex-wrap: wrap; /* Allows buttons to wrap to the next line */
-    justify-content: center; /* Centers buttons within the container */
-    gap: 15px; /* Space between buttons */
+    display: grid; /* Use grid for layout */
+    grid-template-columns: repeat(2, 1fr); /* Two columns, equal width */
+    gap: 15px; /* Space between grid items */
     margin-top: 20px;
+    max-width: 600px; /* Limit overall width for better appearance */
+    margin-left: auto;
+    margin-right: auto; /* Center the grid container */
 }
 
 .category-button {
-    background-color: var(--primary-color); /* Slightly different color for distinction */
+    background-color: var(--primary-color);
     color: var(--text-color);
     padding: 12px 25px;
     border-radius: 30px;
     font-size: 1.1em;
     font-weight: bold;
-    min-width: 120px; /* Ensure buttons have a minimum width */
+    min-width: 120px;
     text-align: center;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .category-button:hover {
-    background-color: var(--button-hover-color); /* Use general button hover color */
+    background-color: var(--button-hover-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
@@ -260,6 +262,13 @@ h2 {
     color: var(--dark-text-color);
     box-shadow: 0 4px 10px rgba(255, 165, 0, 0.5);
     transform: scale(1.02); /* Slightly enlarge active button */
+}
+
+/* Specific style for the "All Categories" button to span columns */
+.all-categories-button {
+    grid-column: 1 / span 2; /* Span across both columns */
+    font-size: 1.2em; /* Slightly larger */
+    padding: 15px 30px; /* More padding */
 }
 
 
@@ -281,8 +290,8 @@ h2 {
 }
 
 .theme-toggle-button:hover {
-    background-color: var(--primary-color); /* Keep the same on hover, or a slightly different shade */
-    transform: translateY(-1px); /* Slight lift */
+    background-color: var(--primary-color);
+    transform: translateY(-1px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -295,18 +304,18 @@ h2 {
 .theme-buttons-wrapper {
     overflow: hidden;
     max-height: 0;
-    transition: max-height 0.5s ease-out, opacity 0.5s ease-out; /* Include opacity in transition */
-    display: none; /* Add this to ensure it's hidden from the start */
-    opacity: 0; /* Add opacity for a fade effect during transition */
+    transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
+    display: none;
+    opacity: 0;
 }
 
 /* Class to show the theme buttons wrapper */
 .theme-buttons-wrapper.visible {
-    max-height: 500px; /* A value larger than expected max height of content */
-    padding-top: 15px; /* Add some padding when visible */
+    max-height: 500px;
+    padding-top: 15px;
     padding-bottom: 15px;
-    display: block; /* Or flex, depending on your container's direct children layout needs */
-    opacity: 1; /* Make it fully visible */
+    display: block;
+    opacity: 1;
 }
 
 
@@ -316,8 +325,8 @@ h2 {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     max-width: 600px;
-    margin: 0 auto; /* Center within its wrapper */
-    padding: 10px 0; /* Keep your padding */
+    margin: 0 auto;
+    padding: 10px 0;
 }
 
 /* Movie Grids */
@@ -501,11 +510,13 @@ footer {
     }
     /* Category buttons responsive */
     .category-buttons-container {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: stretch; /* Stretch to fill container width */
-        max-width: 300px; /* Limit overall width */
-        margin-left: auto;
-        margin-right: auto;
+        grid-template-columns: 1fr; /* Single column on smaller screens */
+        max-width: 300px; /* Adjust max-width for single column */
+    }
+    .all-categories-button {
+        grid-column: auto; /* Reset column span for single column layout */
+        font-size: 1.1em; /* Adjust font size for smaller screens */
+        padding: 12px 25px; /* Adjust padding for smaller screens */
     }
     .category-button {
         width: 100%; /* Make each button fill its allowed width */

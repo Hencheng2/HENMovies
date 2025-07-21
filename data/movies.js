@@ -1,6 +1,5 @@
 // data/movies.js
 
-// IMPORTANT: Ensure the 'themes' array is defined here for script.js to use
 const themes = ["Action", "Comedy", "Drama", "Sci-Fi", "Horror", "Thriller", "Adventure", "Fantasy", "Animation", "Documentary", "Mystery", "Romance"];
 
 const movies = [
